@@ -19,21 +19,23 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 인쇄 최적화 규격 및 백지 생성 방지 CSS */
+        /* 💡 프린트 출력 시 불필요한 공백과 마진을 완벽하게 통제하는 인쇄 전용 스타일 */
         @media print {
-            body { background: #0f172a !important; color: white !important; }
+            @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }
+            html, body { background: #0f172a !important; color: white !important; min-height: auto !important; height: auto !important; }
             body * { visibility: hidden; }
             #detailModal, #detailModal * { visibility: visible; }
-            #detailModal { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; background: #0f172a !important; box-shadow: none !important; border: none !important; }
+            #detailModal { position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; height: auto !important; background: #0f172a !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             .action-buttons, .fa-xmark { display: none !important; }
-            .page-break { page-break-before: always; break-before: page; margin-top: 20px; }
+            .page-break { page-break-before: always; break-before: page; margin-top: 10px; }
+            /* 내부 여백 압축 */
+            .print-compress { padding: 0 !important; margin-bottom: 15px !important; }
         }
     </style>
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
     <div class="max-w-4xl mx-auto p-6">
-        <!-- 헤더 섹션 -->
         <header class="mb-12 text-center pt-8">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -47,7 +49,6 @@
             </p>
         </header>
 
-        <!-- 필터 대시보드 카드 -->
         <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-2xl mb-8 space-y-6 backdrop-blur-md">
             <div>
                 <div class="flex justify-between items-center mb-3">
@@ -77,7 +78,6 @@
             </div>
         </div>
 
-        <!-- 로딩 애니메이션 -->
         <div id="loading" class="text-center hidden my-16">
             <div class="inline-block relative w-12 h-12">
                 <div class="absolute top-0 left-0 w-full h-full border-4 border-indigo-500/20 rounded-full"></div>
@@ -86,11 +86,9 @@
             <p class="mt-4 text-sm text-slate-400 tracking-wide">지역별 자산 저평가 지수 비교 분석 중...</p>
         </div>
 
-        <!-- 결과 리스트 컨테이너 -->
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
-    <!-- 팝업 모달 뼈대 -->
     <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
@@ -112,7 +110,6 @@
             { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
         ];
 
-        // 자치구 체크박스 세팅
         const grid = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -131,7 +128,6 @@
             document.querySelectorAll('.district-checkbox').forEach(chk => chk.checked = status);
         }
 
-        // 가상 부동산 데이터 풀 고도화
         function generateHighlyAccurateDeals(districtName) {
             const pool = {
                 "아파트": [
@@ -175,7 +171,6 @@
             return results.sort(() => Math.random() - 0.5);
         }
 
-        // 데이터 검색 및 화면에 리스트 배치
         async function fetchDeals() {
             const checkedBoxes = document.querySelectorAll('.district-checkbox:checked');
             const discountCut = parseInt(document.getElementById('discountSelect').value);
@@ -209,11 +204,9 @@
                 const basePrice = item.prc;
                 const marketPrice = Math.round(basePrice / (1 - (calculatedDiscount / 100)));
 
-                // 💡 해결의 열쇠: 자바스크립트의 안정적인 데이터 전송을 위해 고유 데이터 속성(data-*) 부여 및 정적 구조 매핑
                 const card = document.createElement('div');
                 card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-indigo-500/50 hover:bg-slate-900/80 cursor-pointer transition-all duration-300 backdrop-blur-sm group";
                 
-                // 완벽한 다이내믹 클로저 바인딩 방식으로 클릭 이벤트가 무조건 감지되도록 수정
                 card.addEventListener('click', function() {
                     openDetailModal(item, marketPrice, calculatedDiscount);
                 });
@@ -250,7 +243,6 @@
             });
         }
 
-        // 팝업 상세 모달 제어 함수 (주변 입지 대조 기능 완전 동적 조립)
         function openDetailModal(item, marketPrice, discount) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
@@ -262,16 +254,15 @@
 
             const distName = item.district;
             const currentPriceBillion = Math.round(item.prc / 10000);
+            const marginBillion = Math.round((marketPrice - item.prc) / 10000);
             
-            // 비교 타겟 시세 연동
             const comp1_name = "푸르지오 메트로하임"; const comp1_price = Math.round(marketPrice / 10000 * 1.05);
             const comp2_name = "더샵 리버그란데"; const comp2_price = Math.round(marketPrice / 10000 * 0.98);
             const comp3_name = "이편한세상 센트럴"; const comp3_price = Math.round(marketPrice / 10000 * 1.02);
 
             content.innerHTML = `
                 <div id="modalInnerWrapper" class="space-y-6 text-slate-100">
-                    <!-- [Page 1] 요약 정보 -->
-                    <div>
+                    <div class="print-compress">
                         <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
                                 <span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">${item.rletTpNm}</span>
@@ -289,7 +280,7 @@
                             <div class="flex justify-between"><span class="text-slate-400">공급 / 전용 면적</span><span class="text-slate-200 font-semibold">${item.spc1}㎡ / ${item.spc2}㎡</span></div>
                             <div class="flex justify-between"><span class="text-slate-400">현재 등록 특가</span><span class="text-rose-400 font-bold text-base">${item.prcCc}</span></div>
                             <div class="flex justify-between"><span class="text-slate-400">인근 동일평형 적정 시세</span><span class="text-slate-300 font-semibold">${Math.round(marketPrice/10000)}억 원 선</span></div>
-                            <div class="flex justify-between border-t border-slate-800/60 pt-2 mt-1"><span class="text-slate-400">즉시 확보 예상 안전마진</span><span class="text-emerald-400 font-extrabold text-base">+약 ${Math.round((marketPrice - item.prc)/10000)}억 원</span></div>
+                            <div class="flex justify-between border-t border-slate-800/60 pt-2 mt-1"><span class="text-slate-400">즉시 확보 예상 안전마진</span><span class="text-emerald-400 font-extrabold text-base">+약 ${marginBillion}억 원</span></div>
                         </div>
 
                         <div class="space-y-2.5 bg-slate-950/40 p-4 rounded-xl border border-slate-800/50 mb-4">
@@ -310,47 +301,46 @@
                         </div>
                     </div>
 
-                    <!-- [Page 2] 인프라 입지 및 3개 대조 단지 시세 테이블 (인쇄 연동 분할점 포함) -->
-                    <div class="page-break pt-4 border-t border-slate-800/60">
-                        <h4 class="text-sm font-bold text-white mb-3"><i class="fa-solid fa-code-compare text-emerald-400 mr-1.5"></i> 주변 실거래 및 입지 대조 분석 리포트</h4>
-                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">
-                            해당 자산이 위치한 <span class="text-indigo-400 font-bold">${distName}</span> 핵심 반경 1.5km 이내에 위치한 동일 면적 기준 타 단지 매물들과의 가치 비교표입니다.
+                    <div class="page-break pt-2 print-compress">
+                        <h4 class="text-sm font-bold text-white mb-2"><i class="fa-solid fa-code-compare text-emerald-400 mr-1.5"></i> 주변 실거래 및 입지 대조 분석 리포트</h4>
+                        <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+                            해당 자산을 포함하여 <span class="text-indigo-400 font-bold">${distName}</span> 핵심 반경 1.5km 이내 동일 면적 기준 타 단지 매물들과의 가치 비교표입니다.
                         </p>
 
-                        <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-1 text-xs mb-4">
+                        <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800/80 p-1 text-xs mb-3">
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="border-b border-slate-800 text-slate-400 bg-slate-900/50">
-                                        <th class="p-3">비교 자산 단지명</th>
-                                        <th class="p-3 text-center">평균 매가</th>
-                                        <th class="p-3 text-center">현재 매물과의 격차</th>
-                                        <th class="p-3 text-center">AI 입지 가치</th>
+                                        <th class="p-2.5">비교 자산 단지명</th>
+                                        <th class="p-2.5 text-center">평균 매가</th>
+                                        <th class="p-2.5 text-center">현재 매물과의 격차</th>
+                                        <th class="p-2.5 text-center">AI 입지 가치</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-900 text-slate-300">
                                     <tr class="bg-indigo-500/10 text-indigo-300 font-semibold">
-                                        <td class="p-3">📌 본 자산 (현재 매물)</td>
-                                        <td class="p-3 text-center text-rose-400">${currentPriceBillion}억 원 선</td>
-                                        <td class="p-3 text-center text-emerald-400">기준 시점 (-${discount}%)</td>
-                                        <td class="p-3 text-center text-emerald-400">최상급 (A+)</td>
+                                        <td class="p-2.5">📌 본 자산 (현재 매물)</td>
+                                        <td class="p-2.5 text-center text-rose-400">${currentPriceBillion}억 원 선</td>
+                                        <td class="p-2.5 text-center text-emerald-400">기준 시점 (-${discount}%)</td>
+                                        <td class="p-2.5 text-center text-emerald-400">최상급 (A+)</td>
                                     </tr>
                                     <tr>
-                                        <td class="p-3">${comp1_name}</td>
-                                        <td class="p-3 text-center">${comp1_price}억 원 선</td>
-                                        <td class="p-3 text-center text-slate-500">+약 ${comp1_price - currentPriceBillion}억 높음</td>
-                                        <td class="p-3 text-center">상급 (A)</td>
+                                        <td class="p-2.5">${comp1_name}</td>
+                                        <td class="p-2.5 text-center">${comp1_price}억 원 선</td>
+                                        <td class="p-2.5 text-center text-slate-500">+약 ${comp1_price - currentPriceBillion}억 높음</td>
+                                        <td class="p-2.5 text-center">상급 (A)</td>
                                     </tr>
                                     <tr>
-                                        <td class="p-3">${comp2_name}</td>
-                                        <td class="p-3 text-center">${comp2_price}억 원 선</td>
-                                        <td class="p-3 text-center text-slate-500">+약 ${comp2_price - currentPriceBillion}억 높음</td>
-                                        <td class="p-3 text-center">중상급 (B+)</td>
+                                        <td class="p-2.5">${comp2_name}</td>
+                                        <td class="p-2.5 text-center">${comp2_price}억 원 선</td>
+                                        <td class="p-2.5 text-center text-slate-500">+약 ${comp2_price - currentPriceBillion}억 높음</td>
+                                        <td class="p-2.5 text-center">중상급 (B+)</td>
                                     </tr>
                                     <tr>
-                                        <td class="p-3">${comp3_name}</td>
-                                        <td class="p-3 text-center">${comp3_price}억 원 선</td>
-                                        <td class="p-3 text-center text-slate-500">+약 ${comp3_price - currentPriceBillion}억 높음</td>
-                                        <td class="p-3 text-center">상급 (A)</td>
+                                        <td class="p-2.5">${comp3_name}</td>
+                                        <td class="p-2.5 text-center">${comp3_price}억 원 선</td>
+                                        <td class="p-2.5 text-center text-slate-500">+약 ${comp3_price - currentPriceBillion}억 높음</td>
+                                        <td class="p-2.5 text-center">상급 (A)</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -358,14 +348,13 @@
 
                         <div class="bg-slate-950/40 border border-slate-800/80 p-4 rounded-xl text-xs leading-relaxed text-slate-400">
                             <strong class="text-slate-200 block mb-1">🔍 주변 인프라 연동 분석 결론</strong>
-                            인근 대조 단지들의 평균 시세가 최소 <span class="text-slate-200 font-bold">${comp2_price}억</span>에서 최고 <span class="text-slate-200 font-bold">${comp1_price}억</span> 원 사이에 단단한 지지선을 구축하고 있는 반면, 본 자산은 다주택자 양도세 한시 배제 및 긴급 자금 확보 사유로 인해 역대급 안전마진(<span class="text-emerald-400 font-bold">약 +${Math.round((marketPrice - item.prc)/10000)}억 원</span> 확보)을 탑재하여 자산 안정성이 매우 뛰어난 고가치 매물로 판정됩니다.
+                            인근 대조 단지들의 평균 시세가 최소 <span class="text-slate-200 font-bold">${comp2_price}억</span>에서 최고 <span class="text-slate-200 font-bold">${comp1_price}억</span> 원 사이에 단단한 지지선을 구축하고 있는 반면, 본 자산은 다주택자 양도세 한시 배제 및 긴급 자금 확보 사유로 인해 역대급 안전마진(<span class="text-emerald-400 font-bold">약 +${marginBillion}억 원</span> 확보)을 탑재하여 자산 안정성이 매우 뛰어난 고가치 매물로 판정됩니다.
                         </div>
                     </div>
 
-                    <!-- 작업 단추 바 (인쇄 시 자동 격리 숨김) -->
                     <div class="pt-2 flex gap-2 action-buttons">
                         <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-lg shadow-indigo-600/10 transition flex justify-center items-center gap-1.5">
-                            <i class="fa-solid fa-file-pdf"></i> 📊 AI 종합 심층 분석서 받기 (A4 2장 규격)
+                            <i class="fa-solid fa-file-pdf"></i> 📊 AI 종합 심층 분석서 받기
                         </button>
                         <button onclick="alert('전담 파트너 공인중개사 연결이 요청되었습니다. 5분 내로 문자로 연락드립니다.')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl text-xs transition border border-slate-700 flex justify-center items-center gap-1.5">
                             <i class="fa-solid fa-comment-dots"></i> ✉️ 전문 중개사에게 문의하기
@@ -380,7 +369,6 @@
             document.getElementById('detailModal').classList.remove('modal-active');
         }
 
-        // 초기 시작과 동시에 스캔 엔진 가동
         window.onload = () => { fetchDeals(); };
     </script>
 </body>
