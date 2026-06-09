@@ -1,36 +1,42 @@
-// api/get-deals.js
-const fetch = require('node-fetch');
-
+// api/get-deals.js (Vercel 내장 모듈 활용 및 네이버 보안 우회 버전)
 module.exports = async (req, res) => {
-  // CORS 헤더 설정
+  // CORS 보안 허용 설정
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // 서울 주요 지역구별 가상 중심 좌표 (구현 예시를 위해 강남, 서초, 마포 등 세팅)
-  // 실제 서비스 시에는 위경도 바운더리(cortarNo 등)를 유동적으로 받도록 확장 가능
   const { region } = req.query;
+  const targetRegion = region || '1168000000';
   
-  // 네이버 부동산 모바일 API 호출 (아파트, 빌라, 주택 매매 조건 필터링)
-  // rletType: A01(아파트), A02(빌라/연립), H01(단독/다가구) | tradTp: A1(매매)
-  const url = `https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=A01%3AA02%3AH01&tradTpCd=A1&z=12&lat=37.5665&lon=126.9780&cortarNo=${region || '1168000000'}&page=1`;
+  // 네이버가 로봇으로 의심하지 않도록 실시간 타임스탬프(시간값) 추가
+  const timestamp = Date.now();
+  const url = `https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=A01%3AA02%3AH01&tradTpCd=A1&z=12&lat=37.5665&lon=126.9780&cortarNo=${targetRegion}&page=1&_=${timestamp}`;
 
   try {
+    // 외부 패키지 없이 Vercel 자체에서 지원하는 내장 fetch 함수 사용
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
-        'Referer': 'https://m.land.naver.com/'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'ko-KR,ko;q=0.9',
+        'Referer': 'https://m.land.naver.com/',
+        'Origin': 'https://m.land.naver.com'
       }
     });
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: `네이버 서버가 응답하지 않습니다. 상태코드: ${response.status}` });
+    }
+
     const data = await response.json();
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: '데이터를 가져오는데 실패했습니다.', details: error.message });
+    return res.status(500).json({ error: '서버 내부 연산 오류 발생', message: error.message });
   }
 };
