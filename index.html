@@ -27,7 +27,6 @@
             #detailModal, #detailModal * { visibility: visible; height: auto !important; overflow: visible !important; }
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
-            /* 💡 인쇄 시 카테고리 탭과 다차원 정렬 드롭다운 영역은 자동 숨김 처리 */
             .action-buttons, .fa-xmark, #marketDashboard, #filterSection, #tabSortContainer { display: none !important; }
             .print-grid { display: grid !important; grid-template-cols: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
         }
@@ -106,7 +105,7 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">급매 검색 기준 (할인율)</label>
                     <select id="discountSelect" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
-                        <option value="10">시장가 대비 10% 이상 저렴한 매물</option>
+                        <option value="10">시장가 대비 10% 이상 저평가 매물</option>
                         <option value="20" selected>🔥 추천: 시세 대비 20% 이상 저렴</option>
                         <option value="30">🚨 긴급 처분성 30% 이상 초급매</option>
                     </select>
@@ -119,9 +118,8 @@
             </div>
         </div>
 
-        <!-- 📊 1. [구조 개편] 카테고리 탭과 다차원 정렬 드롭다운 통합 컨트롤러 바 -->
+        <!-- 카테고리 탭과 다차원 정렬 드롭다운 통합 컨트롤러 바 -->
         <div id="tabSortContainer" class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-800 mb-4 text-sm font-semibold gap-3 sm:gap-0">
-            <!-- 좌측 카테고리 탭 엔진 -->
             <div id="typeTabs" class="flex overflow-x-auto whitespace-nowrap scrollbar-none">
                 <button onclick="switchTab('ALL')" id="tab_ALL" class="px-4 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all">전체 자산</button>
                 <button onclick="switchTab('아파트')" id="tab_아파트" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">아파트</button>
@@ -129,11 +127,12 @@
                 <button onclick="switchTab('오피스텔')" id="tab_오피스텔" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">오피스텔</button>
             </div>
             
-            <!-- 우측 다차원 스마트 정렬 셀렉터 -->
             <div class="flex items-center gap-2 px-1 pb-2 sm:pb-0">
                 <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-arrows-up-down"></i> 정렬 기준:</span>
                 <select id="sortCriteriaSelect" onchange="triggerSort()" class="bg-slate-800 border border-slate-700/80 rounded-lg py-1 px-2.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
                     <option value="score_desc" selected>✨ AI 투자 점수순</option>
+                    <!-- 💡 할인율 정렬 기준 분기 추가 신설 -->
+                    <option value="discount_desc">📉 안전마진율 높은순</option>
                     <option value="price_asc">📉 낮은 가격순</option>
                     <option value="price_desc">📈 높은 가격순</option>
                     <option value="area_desc">📐 높은 면적순 (공급)</option>
@@ -166,7 +165,6 @@
     </div>
 
     <script>
-        // 마켓 스캔 결과를 원천 보존하는 글로벌 자산 배열 풀
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
@@ -282,7 +280,6 @@
                 item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);
             });
 
-            // 데이터 수집 후 렌더링 가동 (렌더링 파이프라인에서 자동 정렬)
             renderDeals();
         }
 
@@ -302,17 +299,14 @@
             renderDeals();
         }
 
-        // 정렬 드롭다운 선택 변동 시 렌더링 파이프라인 즉시 재호출
         function triggerSort() {
             renderDeals();
         }
 
-        // 📊 다차원 스마트 렌더링 및 정렬 파이프라인 코어
         function renderDeals() {
             const container = document.getElementById('resultContainer');
             container.innerHTML = '';
 
-            // 1단계: 카테고리 탭 분류 필터링
             let filtered = currentFetchedDeals.filter(item => {
                 if (currentActiveTab === 'ALL') return true;
                 return item.rletTpNm === currentActiveTab;
@@ -323,22 +317,23 @@
                 return;
             }
 
-            // 2단계: 핵심 요구사항인 "다차원 다기준 분기형 정렬 알고리즘" 스위칭 가동
             const sortCriteria = document.getElementById('sortCriteriaSelect').value;
             
             if (sortCriteria === 'score_desc') {
-                filtered.sort((a, b) => b.totalScore - a.totalScore); // AI 점수 높은순
+                filtered.sort((a, b) => b.totalScore - a.totalScore);
+            } else if (sortCriteria === 'discount_desc') {
+                // 💡 [신설] 할인율(안전마진율)이 큰 자산 순으로 내림차순 정렬
+                filtered.sort((a, b) => b.discount - a.discount);
             } else if (sortCriteria === 'price_asc') {
-                filtered.sort((a, b) => a.prc - b.prc); // 낮은 가격순
+                filtered.sort((a, b) => a.prc - b.prc);
             } else if (sortCriteria === 'price_desc') {
-                filtered.sort((a, b) => b.prc - a.prc); // 높은 가격순
+                filtered.sort((a, b) => b.prc - a.prc);
             } else if (sortCriteria === 'area_desc') {
-                filtered.sort((a, b) => parseFloat(b.spc1) - parseFloat(a.spc1)); // 높은 면적순
+                filtered.sort((a, b) => parseFloat(b.spc1) - parseFloat(a.spc1));
             } else if (sortCriteria === 'area_asc') {
-                filtered.sort((a, b) => parseFloat(a.spc1) - parseFloat(b.spc1)); // 낮은 면적순
+                filtered.sort((a, b) => parseFloat(a.spc1) - parseFloat(b.spc1));
             }
 
-            // 3단계: 정렬 완료 데이터 화면 바인딩
             filtered.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-orange-500/50 hover:bg-slate-900/80 cursor-pointer transition-all duration-300 backdrop-blur-sm group";
@@ -347,6 +342,7 @@
                     openDetailModal(item, item.marketPrice, item.discount);
                 });
 
+                // 🍊 테무같은 저가형 '특가 배지'와 화이어 아이콘을 걷어내고, '안전마진 확보 배지'와 신뢰의 방패아이콘으로 업그레이드
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-2 mb-2">
@@ -362,16 +358,16 @@
                     </div>
                     
                     <div class="relative has-tooltip select-none" onclick="event.stopPropagation()">
-                        <span class="bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1">
-                            <i class="fa-solid fa-fire text-[10px]"></i> ${item.discount}% 특가
+                        <span class="bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-[10px]"></i> 안전마진 ${item.discount}%
                         </span>
                         <div class="tooltip-box absolute right-0 top-9 bg-slate-950 border border-slate-850 text-slate-300 text-xs rounded-xl p-4 w-60 z-50 shadow-2xl leading-relaxed">
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-bell"></i> 실시간 저평가 시그널
+                                <i class="fa-solid fa-chart-pie"></i> 리서치 리스크 심사
                             </p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
-                                <li>• 최근 거래 평균가 대비 <span class="text-orange-400 font-bold">${item.discount}%</span> 저렴</li>
-                                <li>• 카드를 터치하시면 투자가치 분석 리포트를 열람합니다.</li>
+                                <li>• 청산 가치 대비 <span class="text-orange-400 font-bold">${item.discount}%</span> 수준의 리스크 버퍼 구축</li>
+                                <li>• 카드를 터치하시면 가치 실사 보고서를 즉시 로드합니다.</li>
                             </ul>
                         </div>
                     </div>
@@ -478,6 +474,7 @@
                                             <td class="p-2 text-center">상급 (A)</td>
                                         </tr>
                                     </tbody>
+                                end text-slate-300">
                                 </table>
                             </div>
 
