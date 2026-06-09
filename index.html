@@ -19,22 +19,15 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 💡 가로 1페이지 완벽 출력을 위한 인쇄 전용 CSS 테일러링 */
+        /* 가로 1페이지 완벽 출력을 위한 인쇄 전용 CSS 테일러링 */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             html, body { background: #0f172a !important; color: white !important; height: auto !important; min-height: auto !important; overflow: hidden !important; }
-            
-            /* 기존 메인 레이아웃 숨김 */
             body * { visibility: hidden; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
-            
-            /* 리포트 영역 풀스크린 권한 부여 */
             #detailModal, #detailModal * { visibility: visible; height: auto !important; overflow: visible !important; }
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
-            
-            .action-buttons, .fa-xmark { display: none !important; }
-            
-            /* 가로 분할 2단 레이아웃 강제 유지 */
+            .action-buttons, .fa-xmark, #marketDashboard { display: none !important; } /* 인쇄 시 시장 대시보드는 제외 */
             .print-grid { display: grid !important; grid-template-cols: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
         }
     </style>
@@ -43,18 +36,57 @@
 
     <div class="max-w-4xl mx-auto p-6">
         <!-- 헤더 섹션 -->
-        <header class="mb-12 text-center pt-8">
+        <header class="mb-8 text-center pt-4">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                실시간 마켓 트렌드 반영 · 저평가 지수 연산 중
+                대체투자 사후관리 가치평가 및 거시지표 연동엔진 가동 중
             </div>
             <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-200 bg-clip-text text-transparent flex justify-center items-center gap-3">
                 <i class="fa-solid fa-chart-line text-indigo-400"></i> 서울 주거 자산 급매 알리미
             </h1>
-            <p class="text-slate-400 mt-3 text-sm max-w-md mx-auto leading-relaxed">
-                시세 대비 <span class="text-indigo-300 font-semibold">10%~30% 이상 저렴한</span> 프리미엄 매물을 지역별로 한눈에 비교 분석합니다.
-            </p>
         </header>
+
+        <!-- 📊 1. [신설] 서울 부동산 시장 상황 매크로 대시보드 위젯 -->
+        <div id="marketDashboard" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <!-- 위젯 1: 매매가격지수 변동률 추이 -->
+            <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">서울 아파트 매매지수</span>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">전주 대비</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-black text-white">104.2</span>
+                    <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-caret-up"></i> +0.12%</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">강남·마포 권역 우량 신축 단지 중심 온기 확산 중</p>
+            </div>
+
+            <!-- 위젯 2: 서울 월간 거래량 지표 -->
+            <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">서울 주택 월간 거래량</span>
+                    <span class="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 font-medium">월평균 대비</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-black text-white">4,820 건</span>
+                    <span class="text-xs font-bold text-indigo-400"><i class="fa-solid fa-arrow-trend-up"></i> 115%</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">3040세대 실수요층 매수세 유입으로 거래량 회복세</p>
+            </div>
+
+            <!-- 위젯 3: 시장 심리지수 및 규제 트래커 -->
+            <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">KB 매수우위지수</span>
+                    <span class="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20 font-medium">시장 심리</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-black text-amber-400">관망세 부각</span>
+                    <span class="text-xs font-bold text-slate-400">(41.5)</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-2">대출 규제 및 금리 관망세로 급매물 위주 소수 거래</p>
+            </div>
+        </div>
 
         <!-- 필터 대시보드 카드 -->
         <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-2xl mb-8 space-y-6 backdrop-blur-md">
@@ -101,7 +133,6 @@
 
     <!-- 팝업 모달 뼈대 -->
     <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
-        <!-- 💡 가상 가로 출력을 수용하기 위해 기본 팝업 너비도 max-w-4xl로 와이드하게 확장 -->
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-4xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
                 <i class="fa-solid fa-xmark text-lg"></i>
@@ -146,7 +177,7 @@
                     { name: "자이 프리시디움", size: "84/59", base: 14.5, desc: "역세권 대단지 대장 아파트입니다. 소유주의 개인 사정으로 일시적 대출 규제 압박을 피하기 위해 시장 평균보다 대폭 가격을 낮춘 초우량 매물입니다." },
                     { name: "아이파크 센트럴", size: "112/84", base: 19.8, desc: "탁 트인 조망권이 매력적인 로열층 매물입니다. 다주택 처분 기한 만료를 앞두고 빠른 매매 계약 체결을 위해 한시적으로 가격 조건을 하향 조정했습니다." },
                     { name: "힐스테이트 에코포레", size: "74/49", base: 11.2, desc: "주변 대규모 인프라 개선 및 정비사업의 핵심 수혜지입니다. 개인 자산 포트폴리오 재조정 목적으로 급처분하는 알짜 자산입니다." },
-                    { name: "래미안 프라임하임", size: "84/59", base: 16.3, desc: "학부모 선호도가 가장 높은 명문 학군지 초인접 단지입니다. 이민 준비로 가구 집기 포함 파격적인 대폭 절충 조건으로 출회되었습니다." }
+                    { name: "힐스테이트 프라임하임", size: "84/59", base: 16.3, desc: "학부모 선호도가 가장 높은 명문 학군지 초인접 단지입니다. 이민 준비로 가구 집기 포함 파격적인 대폭 절충 조건으로 출회되었습니다." }
                 ],
                 "빌라/연립": [
                     { name: "프레시티 빌리지", size: "56/42", base: 4.2, desc: "도심 초기 투자용으로 적합한 높은 지분의 소형 주택입니다. 인근 구역 정비 호재에 따른 시세 상승 가능성이 매우 높지만, 개인 사정상 급매 처리합니다." }
@@ -272,11 +303,9 @@
             const comp2_name = "더샵 리버그란데"; const comp2_price = Math.round(marketPrice / 10000 * 0.98);
             const comp3_name = "이편한세상 센트럴"; const comp3_price = Math.round(marketPrice / 10000 * 1.02);
 
-            // 💡 전체 레이아웃을 좌/우 2단으로 고정 분할하는 와이드 그리드 마이그레이션
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
                     
-                    <!-- [상단 헤더 타이틀 바] -->
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
@@ -291,10 +320,8 @@
                         </div>
                     </div>
 
-                    <!-- 💡 와이드 2단 대시보드 그리드 구조 (가로 출력 시 1장에 꽉 차게 좌우 배치) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 print-grid">
                         
-                        <!-- ◀ 왼쪽 단: 재무 상태 요약 및 핵심 인덱스 그래프 -->
                         <div class="space-y-4">
                             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
                                 <p class="text-slate-200 font-bold border-b border-slate-900 pb-1.5"><i class="fa-solid fa-calculator text-indigo-400 mr-1.5"></i> 자산 가치 평가 요약</p>
@@ -322,7 +349,6 @@
                             </div>
                         </div>
 
-                        <!-- ▶ 오른쪽 단: 인근 자산 비교 테이블 및 실사 결론 -->
                         <div class="space-y-4">
                             <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-1 text-[11px]">
                                 <table class="w-full text-left border-collapse">
@@ -373,7 +399,6 @@
 
                     </div>
 
-                    <!-- 작업 버튼 바 (인쇄 시 자동 숨김) -->
                     <div class="pt-2 flex gap-2 action-buttons">
                         <button onclick="window.print()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-lg shadow-indigo-600/10 transition flex justify-center items-center gap-1.5">
                             <i class="fa-solid fa-file-pdf"></i> 📊 AI 투자 가치 분석서 받기
