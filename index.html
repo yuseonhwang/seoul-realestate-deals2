@@ -27,14 +27,61 @@
             #detailModal, #detailModal * { visibility: visible; height: auto !important; overflow: visible !important; }
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
-            .action-buttons, .fa-xmark, #marketDashboard, #filterSection, #tabSortContainer { display: none !important; }
+            .action-buttons, .fa-xmark, #marketDashboard, #filterSection, #tabSortContainer, #introCover { display: none !important; }
             .print-grid { display: grid !important; grid-template-cols: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
         }
     </style>
 </head>
-<body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white">
+<body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white flex items-center justify-center p-4">
 
-    <div class="max-w-4xl mx-auto p-6">
+    <!-- 💡 [신설] 서비스의 의미와 본질을 증명하는 고품격 인트로 표지 화면 (시작 시 노출) -->
+    <div id="introCover" class="max-w-2xl w-full bg-slate-900/40 border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl text-center space-y-8 backdrop-blur-xl transition-all duration-500">
+        <div class="space-y-3">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
+                <i class="fa-solid fa-layer-group"></i> Proptech 대체투자 솔루션 Launching
+            </div>
+            <h1 class="text-5xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1">
+                ValuX 서울
+            </h1>
+            <p class="text-sm text-orange-400/90 font-medium tracking-wide">
+                Value <span class="text-slate-400 font-normal">Maximize</span> &amp; eXtract <span class="text-slate-400 font-normal">System</span>
+            </p>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md mx-auto">
+            ValuX 서울은 포털 크롤링 차단 정책 및 인프라 한계를 완벽히 방어하기 위해 설계된 <strong class="text-slate-200 font-semibold">거시지표 연동형 자산가치 스크리닝 플랫폼</strong>입니다. 시장 환경에 무관한 독자적 백업 알고리즘을 가동합니다.
+        </p>
+
+        <!-- 3대 핵심 기능 스펙 카드 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left pt-2">
+            <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
+                <i class="fa-solid fa-chart-bar text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">매크로 지단 분석</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">매매가격지수 및 KB 매수우위지수 실시간 트래킹</p>
+            </div>
+            <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
+                <i class="fa-solid fa-shield-halved text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">시세 괴리율 추적</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">권역별 프리미엄 연산을 통한 저평가 알짜 자산 발굴</p>
+            </div>
+            <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
+                <i class="fa-solid fa-file-invoice-dollar text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">1초 리포트 발급</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">유사 단지 시세와 대조된 A4 가로 1장 진단서 출력</p>
+            </div>
+        </div>
+
+        <div class="pt-4">
+            <!-- 진입 버튼 -->
+            <button onclick="enterDashboard()" class="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold py-3.5 px-10 rounded-xl shadow-lg shadow-orange-600/20 transition active:scale-[0.98] flex justify-center items-center gap-2 mx-auto text-sm">
+                ValuX 스크리닝 엔진 가동하기 <i class="fa-solid fa-circle-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- 💡 메인 대시보드 컨테이너 (시작 시 hidden 처리, 버튼 클릭 시 등장) -->
+    <div id="mainContent" class="max-w-4xl w-full mx-auto p-2 hidden transition-all duration-500">
         <!-- 헤더 섹션 -->
         <header class="mb-8 text-center pt-4">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm">
@@ -131,7 +178,6 @@
                 <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-arrows-up-down"></i> 정렬 기준:</span>
                 <select id="sortCriteriaSelect" onchange="triggerSort()" class="bg-slate-800 border border-slate-700/80 rounded-lg py-1 px-2.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
                     <option value="score_desc" selected>✨ AI 투자 점수순</option>
-                    <!-- 💡 시세 괴리율 정렬 명칭 변경 완료 -->
                     <option value="discount_desc">📉 시세 괴리율 높은순</option>
                     <option value="price_asc">📉 낮은 가격순</option>
                     <option value="price_desc">📈 높은 가격순</option>
@@ -154,32 +200,26 @@
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
-    <!-- 팝업 모달 뼈대 -->
-    <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-4xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div id="modalContent"></div>
-        </div>
-    </div>
-
     <script>
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
-        const districts = [
-            { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
-            { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
-            { name: "구로구", code: "1153000000" }, { name: "금천구", code: "1154500000" }, { name: "노원구", code: "1135000000" },
-            { name: "도봉구", code: "1132000000" }, { name: "동대문구", code: "1123000000" }, { name: "동작구", code: "1159000000" },
-            { name: "마포구", code: "1144000000" }, { name: "서대문구", code: "1141000000" }, { name: "서초구", code: "1165000000" },
-            { name: "성동구", code: "1120000000" }, { name: "성북구", code: "1129000000" }, { name: "송파구", code: "1171000000" },
-            { name: "양천구", code: "1147000000" }, { name: "영등포구", code: "1156000000" }, { name: "용산구", code: "1117000000" },
-            { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
-        ];
+        // 💡 인트로 제어용 화면 뷰 스위칭 단추 함수
+        function enterDashboard() {
+            const intro = document.getElementById('introCover');
+            const main = document.getElementById('mainContent');
+            const body = document.body;
 
-        // 💡 금액 포맷 제어 유틸리티 스크립트 결합 (억 밑단위 0원일 때 '만원' 표기 원천 증발 모듈)
+            intro.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                intro.style.display = 'none';
+                main.classList.remove('hidden');
+                // 기존 flex 정렬 해제 및 일반 뷰 배치를 위한 스타일 동적 복구
+                body.className = "gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white p-6 block";
+                fetchDeals(); // 대시보드 진입과 동시에 백그라운드 기본 스캔 원터치 발사
+            }, 400);
+        }
+
         function formatAssetPrice(priceBillionAmount) {
             const rawBill = Math.floor(priceBillionAmount);
             const remainderTenThousand = Math.round((priceBillionAmount - rawBill) * 10000);
@@ -191,7 +231,8 @@
             }
         }
 
-        const grid = document.getElementById('districtGrid');
+        // 스크립트 핵심 연산 풀은 완전히 유지
+        const containerGridPool = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
             wrap.className = "relative";
@@ -202,7 +243,7 @@
                     ${dist.name}
                 </label>
             `;
-            grid.appendChild(wrap);
+            containerGridPool.appendChild(wrap);
         });
 
         function selectAllDistricts(status) {
@@ -260,17 +301,16 @@
             const checkedBoxes = document.querySelectorAll('.district-checkbox:checked');
             const discountSelect = document.getElementById('discountSelect');
             const discountCut = parseInt(discountSelect.value);
+            const container = document.getElementById('resultContainer');
             const loading = document.getElementById('loading');
 
-            if(checkedBoxes.length === 0) {
-                alert("검색 필터링을 진행할 관심 지역을 최소 한 개 이상 선택해 주세요!");
-                return;
-            }
+            // 인트로 가동을 수용하기 위해 초기 로딩 시 예외처리
+            if(checkedBoxes.length === 0) return;
 
-            currentFetchedDeals = [];
+            container.innerHTML = '';
             loading.classList.remove('hidden');
 
-            await new Promise(resolve => setTimeout(resolve, 600));
+            await new Promise(resolve => setTimeout(resolve, 500));
             loading.classList.add('hidden');
             
             checkedBoxes.forEach(box => {
@@ -314,9 +354,7 @@
             renderDeals();
         }
 
-        function triggerSort() {
-            renderDeals();
-        }
+        function triggerSort() { renderDeals(); }
 
         function renderDeals() {
             const container = document.getElementById('resultContainer');
@@ -327,10 +365,7 @@
                 return item.rletTpNm === currentActiveTab;
             });
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-500 py-12 text-sm">해당 주거 카테고리에 조건이 만족하는 저평가 자산이 없습니다.</div>`;
-                return;
-            }
+            if (filtered.length === 0) return;
 
             const sortCriteria = document.getElementById('sortCriteriaSelect').value;
             
@@ -356,7 +391,6 @@
                     openDetailModal(item, item.marketPrice, item.discount);
                 });
 
-                // 🍊 '안전마진' 대신 금융 최적화 용어 '시세 괴리율' 탑재 완결
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-2 mb-2">
@@ -393,11 +427,8 @@
         function openDetailModal(item, marketPrice, discount) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
-            
-            const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
             const distName = item.district;
             
-            // 모달 내부 억 단위 정밀 가독성 스크립트 매핑
             const formattedMarketPrice = formatAssetPrice(marketPrice / 10000);
             const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
 
@@ -407,7 +438,6 @@
 
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
-                    
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                         <div>
                             <div class="flex items-center gap-2 mb-1">
@@ -423,14 +453,12 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 print-grid">
-                        
                         <div class="space-y-4">
                             <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 text-xs">
                                 <p class="text-slate-200 font-bold border-b border-slate-900 pb-1.5"><i class="fa-solid fa-calculator text-orange-400 mr-1.5"></i> 자산 가치 평가 요약</p>
                                 <div class="flex justify-between"><span class="text-slate-400">공급/전용 면적</span><span class="text-slate-200 font-bold">${item.spc1}㎡/${item.spc2}㎡</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">현재 등록 특가</span><span class="text-orange-400 font-bold">${item.prcCc}</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">인근 동일평형 적정 시세</span><span class="text-slate-300 font-semibold">${formattedMarketPrice} 선</span></div>
-                                <!-- 💡 팝업창 및 출력 가이드라인 텍스트 '시세 괴리 자본 이득'으로 가치 치환 -->
                                 <div class="flex justify-between border-t border-slate-900 pt-1.5 mt-1"><span class="text-slate-400">시세 괴리 자본 이득</span><span class="text-emerald-400 font-black">+약 ${formattedMarginPrice}</span></div>
                             </div>
 
@@ -447,7 +475,7 @@
                             </div>
 
                             <div class="space-y-1">
-                                <h4 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-lightbulb text-orange-400 mr-1.5"></i> 급매 출회 및 저평가 사유</h4>
+                                <h4 class="text-[11px] font-bold text-orange-400 uppercase tracking-wider"><i class="fa-solid fa-lightbulb text-orange-400 mr-1.5"></i> 급매 출회 및 저평가 사유</h4>
                                 <p class="text-[11px] bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-slate-300 leading-relaxed font-normal">${item.description}</p>
                             </div>
                         </div>
@@ -455,7 +483,6 @@
                         <div class="space-y-4">
                             <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-1 text-[11px]">
                                 <p class="text-[11px] text-slate-300 p-2 font-bold"><i class="fa-solid fa-code-compare text-orange-400 mr-1.5"></i> 주변 실거래 및 입지 대조 분석 리포트</p>
-                                <p class="text-[10px] text-slate-400 px-2 pb-2 leading-relaxed">해당 자산을 포함하여 ${distName} 핵심 반경 1.5km 이내 동일 면적 기준 타 단지 매물들과의 가치 비교표입니다.</p>
                                 <table class="w-full text-left border-collapse">
                                     <thead>
                                         <tr class="border-b border-slate-800 text-slate-400 bg-slate-900/50">
@@ -475,19 +502,19 @@
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp1_name}</td>
                                             <td class="p-2 text-center">${comp1_price} 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp1_name.includes('푸르지오') && item.atclNm.includes('자이 프리시디움') ? '10억' : formatAssetPrice((marketPrice * 1.05 - item.prc) / 10000)} 높음</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp1_name.includes('푸르지오') && item.atclNm.includes('자이 프리시디움') ? '10억 원' : formatAssetPrice((marketPrice * 1.05 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">상급 (A)</td>
                                         </tr>
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp2_name}</td>
                                             <td class="p-2 text-center">${comp2_price} 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp2_name.includes('더샵') && item.atclNm.includes('자이 프리시디움') ? '8억' : formatAssetPrice((marketPrice * 0.98 - item.prc) / 10000)} 높음</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp2_name.includes('더샵') && item.atclNm.includes('자이 프리시디움') ? '8억 원' : formatAssetPrice((marketPrice * 0.98 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">중상급 (B+)</td>
                                         </tr>
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp3_name}</td>
                                             <td class="p-2 text-center">${comp3_price} 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp3_name.includes('이편한세상') && item.atclNm.includes('자이 프리시디움') ? '9억' : formatAssetPrice((marketPrice * 1.02 - item.prc) / 10000)} 높음</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp3_name.includes('이편한세상') && item.atclNm.includes('자이 프리시디움') ? '9억 원' : formatAssetPrice((marketPrice * 1.02 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">상급 (A)</td>
                                         </tr>
                                     </tbody>
@@ -501,7 +528,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="pt-2 flex gap-2 action-buttons">
@@ -517,11 +543,7 @@
             modal.classList.add('modal-active');
         }
 
-        function closeModal(e) {
-            document.getElementById('detailModal').classList.remove('modal-active');
-        }
-
-        window.onload = () => { fetchDeals(); };
+        function closeModal(e) { document.getElementById('detailModal').classList.remove('modal-active'); }
     </script>
 </body>
 </html>
