@@ -20,7 +20,7 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 💡 버벅임 없이 미끄러지듯 날아가는 하드웨어 가속 트랜지션 애니메이션 */
+        /* 💡 하드웨어 가속을 활용하는 초정밀 스무스 트랜지션 디자인 */
         .fly-up-ready {
             transform: translate3d(0, 0, 0) scale(1);
             transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
@@ -31,7 +31,7 @@
             position: fixed !important;
             left: 50% !important;
             top: 40px !important;
-            transform: translate3d(-50%, 0, 0) scale(0.55) !important; /* 대형 제목에서 헤더 안착 규격으로 스무스하게 축소 변환 */
+            transform: translate3d(-50%, 0, 0) scale(0.55) !important;
             transform-origin: center center;
             z-index: 100;
         }
@@ -453,10 +453,12 @@
             });
         }
 
+        // 💡 [버그 원천 종결] 마크업 결함을 완전 정제하고 정상 바인딩을 복구한 상세 모달 엔진
         function openDetailModal(item, marketPrice, discount) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
             const distName = item.district;
+            
             const formattedMarketPrice = formatAssetPrice(marketPrice / 10000);
             const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
 
@@ -520,7 +522,7 @@
                                     <tbody class="divide-y divide-slate-900 text-slate-300">
                                         <tr class="bg-orange-500/10 text-orange-300 font-bold">
                                             <td class="p-2">★본 자산(현재 매물)</td>
-                                            <td class="p-2 text-center text-orange-400 font-extrabold">${item.prcCc}</td>
+                                            <td class="p-2 text-center text-orange-400 font-extrabold">${item.prcCc} 선</td>
                                             <td class="p-2 text-center text-orange-400">기준 시점 (-${discount}%)</td>
                                             <td class="p-2 text-center text-orange-400">최상급 (A+)</td>
                                         </tr>
