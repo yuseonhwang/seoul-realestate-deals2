@@ -9,37 +9,31 @@
     <style>
         .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1c1917 100%); }
         .fly-up-ready { transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.8s; }
-        .title-fly-up-active { position: fixed !important; left: 50% !important; top: 30px !important; transform: translateX(-50%) scale(0.5) !important; z-index: 100; }
+        .title-fly-up-active { position: fixed !important; left: 50% !important; top: 30px !important; transform: translateX(-50%) scale(0.55) !important; z-index: 100; }
         .modal-active { display: flex !important; }
     </style>
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen p-4 flex items-center justify-center">
 
-    <!-- 인트로 표지 -->
+    <!-- 인트로 -->
     <div id="introCover" class="max-w-4xl w-full bg-slate-900/60 border border-slate-800 p-16 rounded-3xl text-center space-y-10 backdrop-blur-xl transition-all duration-700 shadow-2xl">
         <h1 id="introTitle" class="text-7xl font-black bg-gradient-to-r from-white to-orange-400 bg-clip-text text-transparent fly-up-ready">ValuX 서울</h1>
         <p id="introSub" class="text-sm text-orange-400 font-bold tracking-widest uppercase">Value Maximize & eXtract</p>
         <p class="text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
-            ValuX 서울은 서울 주거용 부동산 중 시세 대비 저평가된 진짜 급매물만 엄선하여 빠르게 알려드립니다. 
-            불필요한 데이터는 줄이고, 실질적인 매물 가치와 접근성을 극대화합니다.
+            ValuX 서울은 서울 주거용 부동산 중 <strong>시세 대비 저평가된 진짜 급매물</strong>을 엄선하여 빠르게 알려드립니다.
         </p>
-        <div class="grid grid-cols-3 gap-6 text-left">
-            <div class="bg-slate-950/50 p-6 rounded-2xl border border-slate-800"><i class="fa-solid fa-bolt text-orange-400 mb-4 block text-2xl"></i><h4 class="font-bold mb-2">실시간 급매 스캔</h4><p class="text-xs text-slate-500">25개 자치구의 특가 데이터를 즉각 추적합니다.</p></div>
-            <div class="bg-slate-950/50 p-6 rounded-2xl border border-slate-800"><i class="fa-solid fa-scale-balanced text-orange-400 mb-4 block text-2xl"></i><h4 class="font-bold mb-2">시세 괴리율 분석</h4><p class="text-xs text-slate-500">주변 단지 실거래가와 비교하여 매력적인 매물만 선별합니다.</p></div>
-            <div class="bg-slate-950/50 p-6 rounded-2xl border border-slate-800"><i class="fa-solid fa-file-pdf text-orange-400 mb-4 block text-2xl"></i><h4 class="font-bold mb-2">가치 진단 리포트</h4><p class="text-xs text-slate-500">자산의 가치를 한눈에 파악하는 1페이지 진단서를 제공합니다.</p></div>
-        </div>
         <button onclick="enterDashboardWithAnim()" class="bg-orange-600 px-12 py-4 rounded-xl font-bold text-sm shadow-xl hover:bg-orange-500 transition active:scale-[0.98]">엔진 가동하기</button>
     </div>
 
-    <!-- 대시보드 -->
-    <div id="mainContent" class="max-w-4xl w-full mx-auto hidden opacity-0 transition-opacity duration-500">
+    <!-- 메인 대시보드 -->
+    <div id="mainContent" class="max-w-4xl w-full mx-auto p-4 hidden opacity-0 transition-opacity duration-500">
         <div id="mainTitlePlaceholder" class="h-16 flex justify-center items-center mb-6"></div>
-        <div id="resultContainer" class="space-y-3"></div>
+        <div id="resultContainer" class="space-y-4"></div>
     </div>
 
-    <!-- 상세 리포트 모달 -->
+    <!-- 상세 리포트 모달 (가로 대시보드 리포트) -->
     <div id="detailModal" class="fixed inset-0 bg-slate-950/90 z-50 justify-center items-center hidden p-4" onclick="closeModal()">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-4xl w-full shadow-2xl max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div id="modalContent"></div>
         </div>
     </div>
@@ -63,37 +57,44 @@
 
         async function fetchDeals() {
             const list = [
-                { id:1, name: "[강남구] 자이 프리시디움", prc: "23억 2,000만 원", margin: 27, score: 76, desc: "대출 규제 압박으로 인한 일시적 초급매물. 주변 신축 대비 압도적인 안전마진 확보.", area: "84㎡", floor: "20층" },
-                { id:2, name: "[마포구] 아이파크 센트럴", prc: "19억 원", margin: 22, score: 88, desc: "다주택자 양도세 중과 회피를 위한 급매물. 실거주 및 투자 가치 최상.", area: "112㎡", floor: "15층" }
+                { name: "[강남구] 자이 프리시디움", prc: "23억 2,000만 원", margin: 27, score: 76, desc: "대출 규제 압박으로 출회된 초급매물. 주변 신축 대비 안전마진 확보.", area: "84㎡", floor: "20층", compPrice: "32억 원" },
+                { name: "[마포구] 아이파크 센트럴", prc: "19억 원", margin: 22, score: 88, desc: "다주택자 처분 물건으로 실거주 및 투자 가치 최상.", area: "112㎡", floor: "15층", compPrice: "22억 원" }
             ];
             const container = document.getElementById('resultContainer');
             container.innerHTML = list.map(item => `
-                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex justify-between items-center cursor-pointer hover:border-orange-500 transition" onclick="openDetailModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex justify-between items-center cursor-pointer hover:border-orange-500 transition" onclick="openDetailModal(${JSON.stringify(item).replace(/"/g, '&quot;')})">
                     <div>
-                        <div class="text-[10px] text-orange-500 font-bold">주거 자산 급매</div>
-                        <div class="font-bold text-sm my-1">${item.name}</div>
-                        <div class="text-xs text-slate-400">시세 괴리율 -${item.margin}% | AI 스코어: ${item.score}점</div>
+                        <div class="font-bold text-sm">${item.name}</div>
+                        <div class="text-xs text-slate-400">시세 괴리율 -${item.margin}% | AI 투자 점수 ${item.score}점</div>
                     </div>
-                    <div class="font-bold text-orange-400">${item.prc}</div>
+                    <div class="font-bold text-orange-400 text-lg">${item.prc}</div>
                 </div>
             `).join('');
         }
 
         function openDetailModal(item) {
             document.getElementById('modalContent').innerHTML = `
-                <h2 class="text-xl font-black text-white mb-6 border-b border-slate-800 pb-4">${item.name}</h2>
-                <div class="grid grid-cols-2 gap-4 text-xs mb-6">
-                    <div class="bg-slate-950 p-4 rounded-lg"><span class="text-slate-500 block">즉시 확보 마진</span><span class="text-lg font-bold text-orange-400">${item.margin}%</span></div>
-                    <div class="bg-slate-950 p-4 rounded-lg"><span class="text-slate-500 block">AI 평가 등급</span><span class="text-lg font-bold text-emerald-400">${item.score}점</span></div>
-                </div>
-                <div class="space-y-4 text-slate-300 text-sm">
-                    <p class="leading-relaxed border-l-2 border-orange-600 pl-4">${item.desc}</p>
-                    <div class="bg-slate-800 p-4 rounded-lg grid grid-cols-2 gap-4 text-xs">
-                        <div>공급면적: ${item.area}</div>
-                        <div>층수: ${item.floor}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 왼쪽 대시보드 -->
+                    <div>
+                        <h2 class="text-xl font-black text-white mb-4">${item.name}</h2>
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><span class="text-slate-500 text-[10px] block">시세 괴리율</span><span class="font-bold text-orange-400 text-lg">${item.margin}%</span></div>
+                            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800"><span class="text-slate-500 text-[10px] block">AI 투자 점수</span><span class="font-bold text-emerald-400 text-lg">${item.score}점</span></div>
+                        </div>
+                        <p class="text-sm text-slate-300 leading-relaxed mb-6 bg-slate-800/50 p-4 rounded-xl">${item.desc}</p>
+                    </div>
+                    <!-- 오른쪽 요약 리포트 -->
+                    <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800">
+                        <h3 class="text-sm font-bold mb-4 border-b border-slate-800 pb-2">자산 가치 요약표</h3>
+                        <table class="w-full text-xs text-slate-400">
+                            <tr class="h-8 border-b border-slate-800"><td class="text-left">공급 면적</td><td class="text-right text-white">${item.area}</td></tr>
+                            <tr class="h-8 border-b border-slate-800"><td class="text-left">해당 층수</td><td class="text-right text-white">${item.floor}</td></tr>
+                            <tr class="h-8 border-b border-slate-800"><td class="text-left">비교 단지 시세</td><td class="text-right text-white">${item.compPrice}</td></tr>
+                        </table>
                     </div>
                 </div>
-                <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="mt-8 w-full bg-orange-600 py-3 rounded-xl font-bold text-sm hover:bg-orange-500 transition">확인 및 리포트 닫기</button>
+                <button onclick="closeModal()" class="mt-8 w-full bg-orange-600 py-3 rounded-xl font-bold text-sm hover:bg-orange-500 transition">리포트 확인 완료</button>
             `;
             document.getElementById('detailModal').classList.add('modal-active');
         }
