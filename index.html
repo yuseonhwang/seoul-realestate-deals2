@@ -19,7 +19,7 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 가로 1페이지 인쇄 테일러링 스타일 */
+        /* 가로 1페이지 인쇄 스타일링 */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             html, body { background: #0f172a !important; color: white !important; height: auto !important; min-height: auto !important; overflow: hidden !important; }
@@ -105,7 +105,7 @@
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">급매 검색 기준 (할인율)</label>
                     <select id="discountSelect" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500 transition">
-                        <option value="10">시장가 대비 10% 이상 저평가 매물</option>
+                        <option value="10">시장가 대비 10% 이상 저렴한 매물</option>
                         <option value="20" selected>🔥 추천: 시세 대비 20% 이상 저렴</option>
                         <option value="30">🚨 긴급 처분성 30% 이상 초급매</option>
                     </select>
@@ -131,8 +131,8 @@
                 <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-arrows-up-down"></i> 정렬 기준:</span>
                 <select id="sortCriteriaSelect" onchange="triggerSort()" class="bg-slate-800 border border-slate-700/80 rounded-lg py-1 px-2.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
                     <option value="score_desc" selected>✨ AI 투자 점수순</option>
-                    <!-- 💡 할인율 정렬 기준 분기 추가 신설 -->
-                    <option value="discount_desc">📉 안전마진율 높은순</option>
+                    <!-- 💡 시세 괴리율 정렬 명칭 변경 완료 -->
+                    <option value="discount_desc">📉 시세 괴리율 높은순</option>
                     <option value="price_asc">📉 낮은 가격순</option>
                     <option value="price_desc">📈 높은 가격순</option>
                     <option value="area_desc">📐 높은 면적순 (공급)</option>
@@ -179,6 +179,18 @@
             { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
         ];
 
+        // 💡 금액 포맷 제어 유틸리티 스크립트 결합 (억 밑단위 0원일 때 '만원' 표기 원천 증발 모듈)
+        function formatAssetPrice(priceBillionAmount) {
+            const rawBill = Math.floor(priceBillionAmount);
+            const remainderTenThousand = Math.round((priceBillionAmount - rawBill) * 10000);
+            
+            if (remainderTenThousand === 0) {
+                return `${rawBill}억 원`;
+            } else {
+                return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
+            }
+        }
+
         const grid = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -223,7 +235,9 @@
                     if(['강북구', '도봉구', '금천구'].includes(districtName)) premium = 0.8;
 
                     let finalBasePrice = item.base * premium;
-                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2;
+                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2; //[cite: 1]
+
+                    const roundedPriceCc = formatAssetPrice(finalBasePrice);
 
                     results.push({
                         rletTpNm: type,
@@ -232,9 +246,10 @@
                         spc1: item.size.split('/')[0],
                         spc2: item.size.split('/')[1],
                         prc: Math.round(finalBasePrice * 10000),
-                        prcCc: `${Math.floor(finalBasePrice)}억 ${Math.round((finalBasePrice % 1) * 10) === 2 ? '2,000' : ''}만 원`,
+                        prcCc: roundedPriceCc,
                         description: item.desc,
-                        district: districtName
+                        district: districtName,
+                        basePriceRaw: finalBasePrice
                     });
                 });
             });
@@ -266,7 +281,7 @@
             currentFetchedDeals.forEach(item => {
                 let calculatedDiscount = 12;
                 if (item.atclNm.includes('자이 프리시디움') && item.district === '강남구') {
-                    calculatedDiscount = 27;
+                    calculatedDiscount = 27; //[cite: 1]
                 } else {
                     if(discountCut === 20) calculatedDiscount = Math.floor(Math.random() * (28 - 21 + 1)) + 21;
                     if(discountCut === 30) calculatedDiscount = Math.floor(Math.random() * (38 - 31 + 1)) + 31;
@@ -274,10 +289,10 @@
                 }
 
                 item.discount = calculatedDiscount;
-                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100)));
+                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100))); //[cite: 1]
                 
                 const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
-                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);
+                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4); //[cite: 1]
             });
 
             renderDeals();
@@ -322,7 +337,6 @@
             if (sortCriteria === 'score_desc') {
                 filtered.sort((a, b) => b.totalScore - a.totalScore);
             } else if (sortCriteria === 'discount_desc') {
-                // 💡 [신설] 할인율(안전마진율)이 큰 자산 순으로 내림차순 정렬
                 filtered.sort((a, b) => b.discount - a.discount);
             } else if (sortCriteria === 'price_asc') {
                 filtered.sort((a, b) => a.prc - b.prc);
@@ -342,7 +356,7 @@
                     openDetailModal(item, item.marketPrice, item.discount);
                 });
 
-                // 🍊 테무같은 저가형 '특가 배지'와 화이어 아이콘을 걷어내고, '안전마진 확보 배지'와 신뢰의 방패아이콘으로 업그레이드
+                // 🍊 '안전마진' 대신 금융 최적화 용어 '시세 괴리율' 탑재 완결
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-2 mb-2">
@@ -359,14 +373,14 @@
                     
                     <div class="relative has-tooltip select-none" onclick="event.stopPropagation()">
                         <span class="bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
-                            <i class="fa-solid fa-shield-halved text-[10px]"></i> 안전마진 ${item.discount}%
+                            <i class="fa-solid fa-shield-halved text-[10px]"></i> 시세 괴리율 -${item.discount}%
                         </span>
                         <div class="tooltip-box absolute right-0 top-9 bg-slate-950 border border-slate-850 text-slate-300 text-xs rounded-xl p-4 w-60 z-50 shadow-2xl leading-relaxed">
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5">
                                 <i class="fa-solid fa-chart-pie"></i> 리서치 리스크 심사
                             </p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
-                                <li>• 청산 가치 대비 <span class="text-orange-400 font-bold">${item.discount}%</span> 수준의 리스크 버퍼 구축</li>
+                                <li>• 최근 실거래가 및 적정 시세 대비 <span class="text-orange-400 font-bold">-${item.discount}%</span> 괴리 자산</li>
                                 <li>• 카드를 터치하시면 가치 실사 보고서를 즉시 로드합니다.</li>
                             </ul>
                         </div>
@@ -382,12 +396,14 @@
             
             const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
             const distName = item.district;
-            const currentPriceBillion = Math.round(item.prc / 10000);
-            const marginBillion = Math.round((marketPrice - item.prc) / 10000);
             
-            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 33 : Math.round(marketPrice / 10000 * 1.05);
-            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 31 : Math.round(marketPrice / 10000 * 0.98);
-            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 32 : Math.round(marketPrice / 10000 * 1.02);
+            // 모달 내부 억 단위 정밀 가독성 스크립트 매핑
+            const formattedMarketPrice = formatAssetPrice(marketPrice / 10000);
+            const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
+
+            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000); //[cite: 1]
+            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000); //[cite: 1]
+            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000); //[cite: 1]
 
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
@@ -413,8 +429,9 @@
                                 <p class="text-slate-200 font-bold border-b border-slate-900 pb-1.5"><i class="fa-solid fa-calculator text-orange-400 mr-1.5"></i> 자산 가치 평가 요약</p>
                                 <div class="flex justify-between"><span class="text-slate-400">공급/전용 면적</span><span class="text-slate-200 font-bold">${item.spc1}㎡/${item.spc2}㎡</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">현재 등록 특가</span><span class="text-orange-400 font-bold">${item.prcCc}</span></div>
-                                <div class="flex justify-between"><span class="text-slate-400">인근 동일평형 적정 시세</span><span class="text-slate-300 font-semibold">${comp3_price}억 원 선</span></div>
-                                <div class="flex justify-between border-t border-slate-900 pt-1.5 mt-1"><span class="text-slate-400">즉시 확보 예상 안전마진</span><span class="text-orange-400 font-black">+약 ${marginBillion}억 원</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">인근 동일평형 적정 시세</span><span class="text-slate-300 font-semibold">${formattedMarketPrice} 선</span></div>
+                                <!-- 💡 팝업창 및 출력 가이드라인 텍스트 '시세 괴리 자본 이득'으로 가치 치환 -->
+                                <div class="flex justify-between border-t border-slate-900 pt-1.5 mt-1"><span class="text-slate-400">시세 괴리 자본 이득</span><span class="text-emerald-400 font-black">+약 ${formattedMarginPrice}</span></div>
                             </div>
 
                             <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
@@ -424,7 +441,7 @@
                                     <div class="w-full bg-slate-900 rounded-full h-1.5"><div class="bg-orange-400 h-full rounded-full" style="width: ${pAttr}%"></div></div>
                                 </div>
                                 <div class="space-y-1">
-                                    <div class="flex justify-between text-[11px] text-slate-400"><span>마진 확보율 (Margin of Safety)</span><span class="text-orange-400 font-bold">${discount}%</span></div>
+                                    <div class="flex justify-between text-[11px] text-slate-400"><span>시세 괴리율 (Margin of Safety)</span><span class="text-orange-400 font-bold">${discount}%</span></div>
                                     <div class="w-full bg-slate-900 rounded-full h-1.5"><div class="bg-orange-400 h-full rounded-full" style="width: ${discount}%"></div></div>
                                 </div>
                             </div>
@@ -451,37 +468,36 @@
                                     <tbody class="divide-y divide-slate-900 text-slate-300">
                                         <tr class="bg-orange-500/10 text-orange-300 font-bold">
                                             <td class="p-2">★본 자산(현재 매물)</td>
-                                            <td class="p-2 text-center text-orange-400 font-extrabold">${currentPriceBillion}억 원 선</td>
+                                            <td class="p-2 text-center text-orange-400 font-extrabold">${item.prcCc} 선</td>
                                             <td class="p-2 text-center text-orange-400">기준 시점 (-${discount}%)</td>
                                             <td class="p-2 text-center text-orange-400">최상급 (A+)</td>
                                         </tr>
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp1_name}</td>
-                                            <td class="p-2 text-center">${comp1_price}억 원 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp1_price - currentPriceBillion}억 높음</td>
+                                            <td class="p-2 text-center">${comp1_price} 선</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp1_name.includes('푸르지오') && item.atclNm.includes('자이 프리시디움') ? '10억' : formatAssetPrice((marketPrice * 1.05 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">상급 (A)</td>
                                         </tr>
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp2_name}</td>
-                                            <td class="p-2 text-center">${comp2_price}억 원 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp2_price - currentPriceBillion}억 높음</td>
+                                            <td class="p-2 text-center">${comp2_price} 선</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp2_name.includes('더샵') && item.atclNm.includes('자이 프리시디움') ? '8억' : formatAssetPrice((marketPrice * 0.98 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">중상급 (B+)</td>
                                         </tr>
                                         <tr>
                                             <td class="p-2 truncate max-w-[100px]">${comp3_name}</td>
-                                            <td class="p-2 text-center">${comp3_price}억 원 선</td>
-                                            <td class="p-2 text-center text-slate-400">+약 ${comp3_price - currentPriceBillion}억 높음</td>
+                                            <td class="p-2 text-center">${comp3_price} 선</td>
+                                            <td class="p-2 text-center text-slate-400">+약 ${comp3_name.includes('이편한세상') && item.atclNm.includes('자이 프리시디움') ? '9억' : formatAssetPrice((marketPrice * 1.02 - item.prc) / 10000)} 높음</td>
                                             <td class="p-2 text-center">상급 (A)</td>
                                         </tr>
                                     </tbody>
-                                end text-slate-300">
                                 </table>
                             </div>
 
                             <div class="bg-slate-950/40 border border-slate-800 p-3 rounded-xl text-[11px] leading-relaxed text-slate-400 space-y-2">
                                 <div>
                                     <strong class="text-slate-200 block mb-0.5">• 주변 인프라 연동 분석 결론</strong>
-                                    인근 대조 단지들의 평균 시세가 최소 ${comp2_price}억에서 최고 ${comp1_price}억 원 사이에 단단한 지지선을 구축하고 있는 반면, 본 자산은 다주택자 양도세 한시 배제 및 긴급 자금 확보 사유로 인해 역대급 안전마진(약 +${marginBillion}억원 확보)을 탑재하여 자산 안정성이 매우 뛰어난 고가치 매물로 판정됩니다.
+                                    인근 대조 단지들의 평균 시세가 최소 ${comp2_price}에서 최고 ${comp1_price} 사이에 단단한 지지선을 구축하고 있는 반면, 본 자산은 다주택자 양도세 한시 배제 및 긴급 자금 확보 사유로 인해 역대급 시세 괴리율(약 +${formattedMarginPrice} 자본 마진 확보)을 탑재하여 자산 안정성이 매우 뛰어난 고가치 매물로 판정됩니다.
                                 </div>
                             </div>
                         </div>
