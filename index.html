@@ -51,6 +51,7 @@
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white flex items-center justify-center p-4">
 
+    <!-- 인트로 표지 화면 판넬 (max-w-4xl 스케일업 완료) -->
     <div id="introCover" class="max-w-4xl w-full bg-slate-900/50 border border-slate-800/80 p-10 sm:p-14 rounded-3xl shadow-2xl text-center space-y-10 backdrop-blur-xl transition-all duration-700 relative">
         
         <div class="space-y-4">
@@ -58,12 +59,14 @@
                 <i class="fa-solid fa-home text-[10px]"></i> 서울 전역 실시간 급매물 트래커
             </div>
             
+            <!-- 대형 로고 래퍼 타이틀 (text-6xl ~ 7xl 자이언트 스케일) -->
             <div id="introTitleWrapper" class="relative h-24 flex items-center justify-center">
                 <h1 id="introTitle" class="text-6xl sm:text-7xl font-black tracking-tighter bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1 select-none fly-up-ready">
                     ValuX 서울
                 </h1>
             </div>
             
+            <!-- 간결하게 정돈된 슬로건 바 -->
             <p id="introSub" class="text-xs sm:text-sm text-orange-400 font-black tracking-widest uppercase transition-all duration-500">
                 Value <span class="text-slate-400 font-normal">Maximize</span> &amp; eXtract
             </p>
@@ -74,6 +77,7 @@
                 ValuX 서울은 서울 주거용 부동산 중 <strong class="text-orange-400 font-bold">시세 대비 저렴하게 나온 진짜 급매물만 엄선하여 빠르게 알려주는 서비스</strong>입니다. 불필요한 탐색 시간을 줄이고, 검증된 특가 매물에 대한 똑똑한 접근성을 제공합니다.
             </p>
 
+            <!-- 3대 핵심 미션 카드 -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left pt-2">
                 <div class="bg-slate-950/60 border border-slate-800/60 p-5 rounded-2xl">
                     <i class="fa-solid fa-bolt text-orange-400 mb-3 block text-xl"></i>
@@ -101,13 +105,16 @@
     </div>
 
 
+    <!-- 메인 대시보드 구조 -->
     <div id="mainContent" class="max-w-4xl w-full mx-auto p-2 hidden opacity-0 transition-opacity duration-500">
+        <!-- 헤더 섹션 -->
         <header class="mb-8 text-center pt-4">
             <div id="mainBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm opacity-0 transition-opacity duration-500">
                 <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
                 실시간 서울 주거 자산 저평가 급매물 트래커 가동 중
             </div>
             
+            <!-- 인트로 제목이 날아와 안착할 플레이스홀더 영역 -->
             <div id="mainTitlePlaceholder" class="h-14 mb-3 flex items-center justify-center"></div>
             
             <p id="mainDesc" class="text-slate-400 mt-3 text-sm max-w-xl mx-auto leading-relaxed opacity-0 transition-opacity duration-500">
@@ -115,6 +122,7 @@
             </p>
         </header>
 
+        <!-- 시스템 처리 및 접근 속도 대시보드 -->
         <div id="realtimeStatusDashboard" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -152,6 +160,7 @@
             </div>
         </div>
 
+        <!-- 필터 카드 대시보드 -->
         <div id="filterSection" class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-2xl mb-6 space-y-6 backdrop-blur-md">
             <div>
                 <div class="flex justify-between items-center mb-3">
@@ -181,6 +190,7 @@
             </div>
         </div>
 
+        <!-- 카테고리 탭과 다차원 정렬 드롭다운 통합 바 -->
         <div id="tabSortContainer" class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-800 mb-4 text-sm font-semibold gap-3 sm:gap-0">
             <div id="typeTabs" class="flex overflow-x-auto whitespace-nowrap scrollbar-none">
                 <button onclick="switchTab('ALL')" id="tab_ALL" class="px-4 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all">전체 자산</button>
@@ -202,10 +212,12 @@
             </div>
         </div>
 
+        <!-- 결과 리스트 컨테이너 -->
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
     <script>
+        // 💡 1단계: 선언 꼬임을 막기 위해 데이터 세트를 최상단 전역 스코프로 전진 배치
         const districts = [
             { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
             { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
@@ -227,6 +239,7 @@
             else return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
         }
 
+        // 💡 2단계: 최상단 변수를 완벽 참조하여 자치구 25개 체크박스 동적 생성 안정화
         const gridContainer = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -241,6 +254,7 @@
             gridContainer.appendChild(wrap);
         });
 
+        // 💡 3단계: GPU 가속 기반 0.8초 애니메이션 연동 및 렌더링 무결성 스위치 가동
         function enterDashboardWithAnim() {
             const introTitle = document.getElementById('introTitle');
             const introBadge = document.getElementById('introBadge');
@@ -276,6 +290,8 @@
 
                     document.getElementById('mainBadge').classList.remove('opacity-0');
                     document.getElementById('mainDesc').classList.remove('opacity-0');
+                    
+                    // 💡 컴포넌트 안착 시 즉각 호출 파이프라인 작동
                     fetchDeals();
                 }, 50);
             }, 800);
@@ -283,6 +299,7 @@
 
         function selectAllDistricts(status) {
             document.querySelectorAll('.district-checkbox').forEach(chk => chk.checked = status);
+            fetchDeals();
         }
 
         function generateHighlyAccurateDeals(districtName) {
@@ -335,16 +352,14 @@
         async function fetchDeals() {
             const checkedBoxes = document.querySelectorAll('.district-checkbox:checked');
             const discountSelect = document.getElementById('discountSelect');
-            const discountCut = parseInt(discountSelect.value);
-            const loading = document.getElementById('loading');
+            const discountCut = discountSelect ? parseInt(discountSelect.value) : 20;
 
-            if(checkedBoxes.length === 0) return;
+            if(checkedBoxes.length === 0) {
+                document.getElementById('resultContainer').innerHTML = `<div class="text-center text-slate-500 py-12 text-sm">추적할 지역을 1개 이상 선택해 주세요.</div>`;
+                return;
+            }
 
             currentFetchedDeals = [];
-            loading.classList.remove('hidden');
-
-            await new Promise(resolve => setTimeout(resolve, 300));
-            loading.classList.add('hidden');
             
             checkedBoxes.forEach(box => {
                 const districtName = box.getAttribute('data-name');
@@ -358,7 +373,7 @@
                 } else {
                     if(discountCut === 20) calculatedDiscount = Math.floor(Math.random() * (28 - 21 + 1)) + 21;
                     if(discountCut === 30) calculatedDiscount = Math.floor(Math.random() * (38 - 31 + 1)) + 31;
-                    if(discountCut === 10 && Math.random() > 0.5) calculatedDiscount = Math.floor(Math.random() * (19 - 13 + 1)) + 13;
+                    if(discountCut === 10) calculatedDiscount = Math.floor(Math.random() * (19 - 13 + 1)) + 13;
                 }
 
                 item.discount = calculatedDiscount;
@@ -386,6 +401,7 @@
 
         function renderDeals() {
             const container = document.getElementById('resultContainer');
+            if(!container) return;
             container.innerHTML = '';
             
             let filtered = currentFetchedDeals.filter(item => {
@@ -428,7 +444,7 @@
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> 실시간 자산 스캔 결과</p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
                                 <li>• 정상적인 시장 균형가 대비 <span class="text-orange-400 font-bold">-${item.discount}%</span> 격차 발생</li>
-                                <li>• 카드를 터치하시면 상세 분석 보고서를 즉시 로드합니다.</li>
+                                <li>• 카드를 터치하시면 상세 분석 보고서를 즉시 연동합니다.</li>
                             </ul>
                         </div>
                     </div>
@@ -542,7 +558,6 @@
             `;
             modal.classList.add('modal-active');
         }
-        
         function closeModal(e) { document.getElementById('detailModal').classList.remove('modal-active'); }
     </script>
 </body>
