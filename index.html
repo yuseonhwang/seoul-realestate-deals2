@@ -19,7 +19,7 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 가로 1페이지 인쇄 테일러링 */
+        /* 가로 1페이지 인쇄 테일러링 스타일 */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             html, body { background: #0f172a !important; color: white !important; height: auto !important; min-height: auto !important; overflow: hidden !important; }
@@ -27,7 +27,8 @@
             #detailModal, #detailModal * { visibility: visible; height: auto !important; overflow: visible !important; }
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
-            .action-buttons, .fa-xmark, #marketDashboard, #filterSection, #typeTabs { display: none !important; }
+            /* 💡 인쇄 시 카테고리 탭과 다차원 정렬 드롭다운 영역은 자동 숨김 처리 */
+            .action-buttons, .fa-xmark, #marketDashboard, #filterSection, #tabSortContainer { display: none !important; }
             .print-grid { display: grid !important; grid-template-cols: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
         }
     </style>
@@ -35,6 +36,7 @@
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white">
 
     <div class="max-w-4xl mx-auto p-6">
+        <!-- 헤더 섹션 -->
         <header class="mb-8 text-center pt-4">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
@@ -48,6 +50,7 @@
             </p>
         </header>
 
+        <!-- 서울 부동산 시장 상황 매크로 대시보드 위젯 -->
         <div id="marketDashboard" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
                 <div class="flex justify-between items-start mb-2">
@@ -86,6 +89,7 @@
             </div>
         </div>
 
+        <!-- 필터 대시보드 카드 -->
         <div id="filterSection" class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-2xl mb-6 space-y-6 backdrop-blur-md">
             <div>
                 <div class="flex justify-between items-center mb-3">
@@ -115,13 +119,30 @@
             </div>
         </div>
 
-        <div id="typeTabs" class="flex border-b border-slate-800 mb-4 text-sm font-semibold">
-            <button onclick="switchTab('ALL')" id="tab_ALL" class="px-5 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all">전체 자산</button>
-            <button onclick="switchTab('아파트')" id="tab_아파트" class="px-5 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">아파트</button>
-            <button onclick="switchTab('빌라/연립')" id="tab_빌라" class="px-5 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">빌라·연립</button>
-            <button onclick="switchTab('오피스텔')" id="tab_오피스텔" class="px-5 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">오피스텔</button>
+        <!-- 📊 1. [구조 개편] 카테고리 탭과 다차원 정렬 드롭다운 통합 컨트롤러 바 -->
+        <div id="tabSortContainer" class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-slate-800 mb-4 text-sm font-semibold gap-3 sm:gap-0">
+            <!-- 좌측 카테고리 탭 엔진 -->
+            <div id="typeTabs" class="flex overflow-x-auto whitespace-nowrap scrollbar-none">
+                <button onclick="switchTab('ALL')" id="tab_ALL" class="px-4 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all">전체 자산</button>
+                <button onclick="switchTab('아파트')" id="tab_아파트" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">아파트</button>
+                <button onclick="switchTab('빌라/연립')" id="tab_빌라" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">빌라·연립</button>
+                <button onclick="switchTab('오피스텔')" id="tab_오피스텔" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all">오피스텔</button>
+            </div>
+            
+            <!-- 우측 다차원 스마트 정렬 셀렉터 -->
+            <div class="flex items-center gap-2 px-1 pb-2 sm:pb-0">
+                <span class="text-xs text-slate-500 font-medium"><i class="fa-solid fa-arrows-up-down"></i> 정렬 기준:</span>
+                <select id="sortCriteriaSelect" onchange="triggerSort()" class="bg-slate-800 border border-slate-700/80 rounded-lg py-1 px-2.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer">
+                    <option value="score_desc" selected>✨ AI 투자 점수순</option>
+                    <option value="price_asc">📉 낮은 가격순</option>
+                    <option value="price_desc">📈 높은 가격순</option>
+                    <option value="area_desc">📐 높은 면적순 (공급)</option>
+                    <option value="area_asc">🔍 낮은 면적순 (공급)</option>
+                </select>
+            </div>
         </div>
 
+        <!-- 로딩 애니메이션 -->
         <div id="loading" class="text-center hidden my-16">
             <div class="inline-block relative w-12 h-12">
                 <div class="absolute top-0 left-0 w-full h-full border-4 border-orange-500/20 rounded-full"></div>
@@ -130,9 +151,11 @@
             <p class="mt-4 text-sm text-slate-400 tracking-wide">지역별 자산 저평가 지수 비교 분석 중...</p>
         </div>
 
+        <!-- 결과 리스트 컨테이너 -->
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
+    <!-- 팝업 모달 뼈대 -->
     <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-4xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
@@ -143,7 +166,7 @@
     </div>
 
     <script>
-        // 전역 변수로 현재 스캔된 모든 매물 저장 풀 유지 (탭 전환 시 재정렬용)
+        // 마켓 스캔 결과를 원천 보존하는 글로벌 자산 배열 풀
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
@@ -242,7 +265,6 @@
                 currentFetchedDeals = currentFetchedDeals.concat(generateHighlyAccurateDeals(districtName));
             });
 
-            // 💡 1단계: 수치 및 AI 투자 점수 사전 연동 계산
             currentFetchedDeals.forEach(item => {
                 let calculatedDiscount = 12;
                 if (item.atclNm.includes('자이 프리시디움') && item.district === '강남구') {
@@ -256,45 +278,42 @@
                 item.discount = calculatedDiscount;
                 item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100)));
                 
-                // 📊 핵심: AI 투자 종합 점수 자동 산출 메커니즘 연동
                 const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
                 item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);
             });
 
-            // 💡 2단계: 핵심 요구사항인 "AI 점수가 높은 순(내림차순)" 정렬 알고리즘 작동
-            currentFetchedDeals.sort((a, b) => b.totalScore - a.totalScore);
-
-            // 렌더링 가동
+            // 데이터 수집 후 렌더링 가동 (렌더링 파이프라인에서 자동 정렬)
             renderDeals();
         }
 
-        // 탭 전환 제어 함수
         function switchTab(type) {
             currentActiveTab = type;
-            
-            // 탭 디자인 CSS 스위칭
-            const tabs = ['ALL', '아파트', '빌라/연립', '오피스텔'];
             const tabIds = { 'ALL': 'tab_ALL', '아파트': 'tab_아파트', '빌라/연립': 'tab_빌라', '오피스텔': 'tab_오피스텔' };
             
             Object.keys(tabIds).forEach(key => {
                 const btn = document.getElementById(tabIds[key]);
                 if (key === type) {
-                    btn.className = "px-5 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all";
+                    btn.className = "px-4 py-2.5 border-b-2 border-orange-500 text-orange-500 transition-all";
                 } else {
-                    btn.className = "px-5 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all";
+                    btn.className = "px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all";
                 }
             });
 
             renderDeals();
         }
 
-        // 화면 렌더링 코어 파이프라인
+        // 정렬 드롭다운 선택 변동 시 렌더링 파이프라인 즉시 재호출
+        function triggerSort() {
+            renderDeals();
+        }
+
+        // 📊 다차원 스마트 렌더링 및 정렬 파이프라인 코어
         function renderDeals() {
             const container = document.getElementById('resultContainer');
             container.innerHTML = '';
 
-            // 현재 선택한 자산 탭에 부합하는 물건만 필터링
-            const filtered = currentFetchedDeals.filter(item => {
+            // 1단계: 카테고리 탭 분류 필터링
+            let filtered = currentFetchedDeals.filter(item => {
                 if (currentActiveTab === 'ALL') return true;
                 return item.rletTpNm === currentActiveTab;
             });
@@ -304,6 +323,22 @@
                 return;
             }
 
+            // 2단계: 핵심 요구사항인 "다차원 다기준 분기형 정렬 알고리즘" 스위칭 가동
+            const sortCriteria = document.getElementById('sortCriteriaSelect').value;
+            
+            if (sortCriteria === 'score_desc') {
+                filtered.sort((a, b) => b.totalScore - a.totalScore); // AI 점수 높은순
+            } else if (sortCriteria === 'price_asc') {
+                filtered.sort((a, b) => a.prc - b.prc); // 낮은 가격순
+            } else if (sortCriteria === 'price_desc') {
+                filtered.sort((a, b) => b.prc - a.prc); // 높은 가격순
+            } else if (sortCriteria === 'area_desc') {
+                filtered.sort((a, b) => parseFloat(b.spc1) - parseFloat(a.spc1)); // 높은 면적순
+            } else if (sortCriteria === 'area_asc') {
+                filtered.sort((a, b) => parseFloat(a.spc1) - parseFloat(b.spc1)); // 낮은 면적순
+            }
+
+            // 3단계: 정렬 완료 데이터 화면 바인딩
             filtered.forEach(item => {
                 const card = document.createElement('div');
                 card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-orange-500/50 hover:bg-slate-900/80 cursor-pointer transition-all duration-300 backdrop-blur-sm group";
@@ -359,7 +394,7 @@
             const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 32 : Math.round(marketPrice / 10000 * 1.02);
 
             content.innerHTML = `
-                <div id="modalInnerWrapper" class="space-y-5 text-slate-100">
+                <div class="space-y-5 text-slate-100">
                     
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                         <div>
@@ -383,7 +418,7 @@
                                 <div class="flex justify-between"><span class="text-slate-400">공급/전용 면적</span><span class="text-slate-200 font-bold">${item.spc1}㎡/${item.spc2}㎡</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">현재 등록 특가</span><span class="text-orange-400 font-bold">${item.prcCc}</span></div>
                                 <div class="flex justify-between"><span class="text-slate-400">인근 동일평형 적정 시세</span><span class="text-slate-300 font-semibold">${comp3_price}억 원 선</span></div>
-                                <div class="flex justify-between border-t border-slate-900 pt-1.5 mt-1"><span class="text-slate-400">확보 예상 안전마진</span><span class="text-orange-400 font-black">+약 ${marginBillion}억 원</span></div>
+                                <div class="flex justify-between border-t border-slate-900 pt-1.5 mt-1"><span class="text-slate-400">즉시 확보 예상 안전마진</span><span class="text-orange-400 font-black">+약 ${marginBillion}억 원</span></div>
                             </div>
 
                             <div class="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
@@ -473,7 +508,6 @@
             document.getElementById('detailModal').classList.remove('modal-active');
         }
 
-        // 초기 구동 단계에서 스캔 자동 가동
         window.onload = () => { fetchDeals(); };
     </script>
 </body>
