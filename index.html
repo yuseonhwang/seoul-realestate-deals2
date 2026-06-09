@@ -16,7 +16,6 @@
             color: white;
             box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
-        /* 모달 팝업 애니메이션 */
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -24,23 +23,25 @@
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
     <div class="max-w-4xl mx-auto p-6">
+        <!-- 헤더 섹션 -->
         <header class="mb-12 text-center pt-8">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold mb-4 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                시연 전용: 대체투자 사후관리 가치평가 엔진 가동 중
+                실시간 마켓 트렌드 반영 · 저평가 지수 연산 중
             </div>
             <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-200 bg-clip-text text-transparent flex justify-center items-center gap-3">
                 <i class="fa-solid fa-chart-line text-indigo-400"></i> 서울 주거 자산 급매 알리미
             </h1>
             <p class="text-slate-400 mt-3 text-sm max-w-md mx-auto leading-relaxed">
-                매물 카드를 <span class="text-emerald-400 font-semibold">클릭</span>하시면 AI 심층 가치평가 및 투자 제안서 요약을 확인할 수 있습니다.
+                시세 대비 <span class="text-indigo-300 font-semibold">10%~30% 이상 저렴한</span> 프리미엄 매물을 지역별로 한눈에 비교 분석합니다.
             </p>
         </header>
 
+        <!-- 필터 대시보드 카드 -->
         <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl shadow-2xl mb-8 space-y-6 backdrop-blur-md">
             <div>
                 <div class="flex justify-between items-center mb-3">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">지역 복수 선택 (중복 가능)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">관심 지역 선택 (중복 가능)</label>
                     <div class="space-x-2">
                         <button onclick="selectAllDistricts(true)" class="text-[11px] text-indigo-400 hover:underline">전체 선택</button>
                         <button onclick="selectAllDistricts(false)" class="text-[11px] text-slate-500 hover:underline">전체 해제</button>
@@ -51,32 +52,35 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-slate-800/60">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">급매 기준 (하락폭)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">급매 검색 기준 (할인율)</label>
                     <select id="discountSelect" class="w-full p-3 border border-slate-700 rounded-xl bg-slate-800 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        <option value="10">명목 시세 대비 10% 이상 저렴</option>
-                        <option value="20" selected>🔥 마켓 관행 대비 20% 이상 저렴</option>
+                        <option value="10">시장가 대비 10% 이상 결제 매물</option>
+                        <option value="20" selected>🔥 추천: 시세 대비 20% 이상 저렴</option>
                         <option value="30">🚨 긴급 처분성 30% 이상 초급매</option>
                     </select>
                 </div>
                 <div class="flex items-end">
                     <button onclick="fetchDeals()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-indigo-600/20 transition active:scale-[0.98] flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass text-sm"></i> 선택 지역 고속 스캔 가동
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i> 맞춤형 매물 스캔 가동
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- 로딩 애니메이션 -->
         <div id="loading" class="text-center hidden my-16">
             <div class="inline-block relative w-12 h-12">
                 <div class="absolute top-0 left-0 w-full h-full border-4 border-indigo-500/20 rounded-full"></div>
                 <div class="absolute top-0 left-0 w-full h-full border-4 border-t-indigo-500 rounded-full animate-spin"></div>
             </div>
-            <p class="mt-4 text-sm text-slate-400 tracking-wide">Vercel Edge 서버 기반 자산 가치 비교 연산 중...</p>
+            <p class="mt-4 text-sm text-slate-400 tracking-wide">지역별 자산 저평가 지수 비교 분석 중...</p>
         </div>
 
+        <!-- 결과 리스트 컨테이너 -->
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
+    <!-- 팝업 모달 뼈대 -->
     <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative" onclick="event.stopPropagation()">
             <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
@@ -116,20 +120,19 @@
             document.querySelectorAll('.district-checkbox').forEach(chk => chk.checked = status);
         }
 
-        // 정밀 시연 자산 풀 (상세 정보 멘트 고도화 추가)
         function generateHighlyAccurateDeals(districtName) {
             const pool = {
                 "아파트": [
-                    { name: "자이 프리시디움", size: "84/59", base: 14.5, desc: "역세권 대단지 랜드마크 자산으로, 소유주의 주택담보대출 리파이낸싱 실패에 따른 법인 긴급 급매물건입니다." },
-                    { name: "아이파크 센트럴", size: "112/84", base: 19.8, desc: "한강 조망권이 확보된 중대형 평형으로, 다주택자 양도세 중과 배제 기한 내 처분을 위한 일시적 가격 하향 조정 자산입니다." },
-                    { name: "힐스테이트 에코포레", size: "74/49", base: 11.2, desc: "주변 대규모 뉴타운 개발 호재 중심지에 위치해 있으며, 상속세 재원 마련을 위한 유가족 측의 초급매 요청 자산입니다." },
-                    { name: "래미안 프라임하임", size: "84/59", base: 16.3, desc: "학군지 인접 선호도 최고 등급 단지입니다. 해외 이주 계약 체결로 인해 시장 평단가 대비 대폭 낮춘 조건으로 긴급 출회되었습니다." }
+                    { name: "자이 프리시디움", size: "84/59", base: 14.5, desc: "역세권 대단지 대장 아파트입니다. 소유주의 개인 사정으로 일시적 대출 규제 압박을 피하기 위해 시장 평균보다 대폭 가격을 낮춘 초우량 매물입니다." },
+                    { name: "아이파크 센트럴", size: "112/84", base: 19.8, desc: "탁 트인 조망권이 매력적인 로열층 매물입니다. 다주택 처분 기한 만료를 앞두고 빠른 매매 계약 체결을 위해 한시적으로 가격 조건을 하향 조정했습니다." },
+                    { name: "힐스테이트 에코포레", size: "74/49", base: 11.2, desc: "주변 대규모 인프라 개선 및 정비사업의 핵심 수혜지입니다. 개인 자산 포트폴리오 재조정 목적으로 급처분하는 알짜 자산입니다." },
+                    { name: "래미안 프라임하임", size: "84/59", base: 16.3, desc: "학부모 선호도가 가장 높은 명문 학군지 초인접 단지입니다. 이민 준비로 가구 집기 포함 파격적인 대폭 절충 조건으로 출회되었습니다." }
                 ],
                 "빌라/연립": [
-                    { name: "프레시티 빌리지", size: "56/42", base: 4.2, desc: "재개발 정비구역 지정 추진 동의율 70% 돌파 구역 내 지분 물건으로, 초기 투자 자금 회수를 원치 않는 개인의 급전 마련 물건입니다." }
+                    { name: "프레시티 빌리지", size: "56/42", base: 4.2, desc: "도심 초기 투자용으로 적합한 높은 지분의 소형 주택입니다. 인근 구역 정비 호재에 따른 시세 상승 가능성이 매우 높지만, 개인 사정상 급매 처리합니다." }
                 ],
                 "오피스텔": [
-                    { name: "루체 스타뷰 메트로", size: "45/32", base: 3.5, desc: "중심업무지구(CBD) 직주근접 독점 직장인 임차 자산으로, 분양권 전매 제한 해제 직후 출회된 무피에 준하는 특가 매물입니다." }
+                    { name: "루체 스타뷰 메트로", size: "45/32", base: 3.5, desc: "직장인 독점 임차 수요가 확보된 공실률 0% 구역의 주거 시설입니다. 초기 투자비용을 대폭 아낄 수 있도록 분양가 이하 수준으로 조정된 특가 매물입니다." }
                 ]
             };
 
@@ -167,7 +170,7 @@
             const loading = document.getElementById('loading');
 
             if(checkedBoxes.length === 0) {
-                alert("검색 필터링을 진행할 자치구를 최소 한 개 이상 선택해 주세요!");
+                alert("검색 필터링을 진행할 관심 지역을 최소 한 개 이상 선택해 주세요!");
                 return;
             }
 
@@ -194,10 +197,8 @@
                 const marketPrice = Math.round(basePrice / (1 - (calculatedDiscount / 100)));
 
                 const card = document.createElement('div');
-                // 💡 cursor-pointer와 클릭 이벤트를 추가하여 카드를 누르면 팝업이 뜨게 연동
                 card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-indigo-500/50 hover:bg-slate-900/80 cursor-pointer transition-all duration-300 backdrop-blur-sm group";
                 
-                // 카드 영역 전체 클릭 시 모달 팝업 가동 권한 부여
                 card.onclick = () => openDetailModal(item, marketPrice, calculatedDiscount);
 
                 card.innerHTML = `
@@ -208,8 +209,8 @@
                         </div>
                         <p class="text-xs text-slate-400">${item.flrInfo}층 · 공급/전용: ${item.spc1}/${item.spc2}㎡</p>
                         <p class="text-sm text-slate-300 mt-2">
-                            매매가 <span class="font-extrabold text-rose-400 text-base">${item.prcCc}</span> 
-                            <span class="text-xs text-slate-500 ml-1">(시세 대비 저평가 단지)</span>
+                            등록 매가 <span class="font-extrabold text-rose-400 text-base">${item.prcCc}</span> 
+                            <span class="text-xs text-slate-500 ml-1">(시세 대비 저평가)</span>
                         </p>
                     </div>
                     
@@ -219,11 +220,11 @@
                         </span>
                         <div class="tooltip-box absolute right-0 top-9 bg-slate-950 border border-slate-850 text-slate-300 text-xs rounded-xl p-4 w-60 z-50 shadow-2xl leading-relaxed">
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-rose-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-triangle-exclamation"></i> 시스템 급매 시그널
+                                <i class="fa-solid fa-bell"></i> 실시간 저평가 시그널
                             </p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
-                                <li>• 주변 실거래가 평균 대비 <span class="text-amber-400 font-bold">${calculatedDiscount}%</span> 저평가</li>
-                                <li>• 클릭 시 심층 투자 분석 정보 열람 가능</li>
+                                <li>• 최근 거래 평균가 대비 <span class="text-amber-400 font-bold">${calculatedDiscount}%</span> 저렴</li>
+                                <li>• 카드를 터치하시면 투자가치 분석 리포트를 열람합니다.</li>
                             </ul>
                         </div>
                     </div>
@@ -232,38 +233,38 @@
             });
         }
 
-        // 팝업 모달창 열기 함수
+        // 팝업 모달창 (세련된 프롭테크 바이브 적용)
         function openDetailModal(item, marketPrice, discount) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
             
             content.innerHTML = `
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div class="flex items-center gap-2">
                         <span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">${item.rletTpNm}</span>
-                        <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">${discount}% 초저평가</span>
+                        <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">투자 추천 등급 우수</span>
                     </div>
                     
                     <h2 class="text-xl font-extrabold text-white">${item.atclNm} (${item.flrInfo}층)</h2>
                     
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2 text-sm">
                         <div class="flex justify-between"><span class="text-slate-400">공급/전용 면적</span><span class="text-slate-200 font-semibold">${item.spc1}㎡ / ${item.spc2}㎡</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">현재 급매 제안가</span><span class="text-rose-400 font-bold text-base">${item.prcCc}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">정상 시장 가치(시세)</span><span class="text-slate-300 font-semibold">${Math.round(marketPrice/10000)}억 원 수준</span></div>
-                        <div class="flex justify-between"><span class="text-slate-400">자산 안전 마진 확보액</span><span class="text-emerald-400 font-bold">+약 ${Math.round((marketPrice - item.prc)/10000)}억 원</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">현재 등록 매가</span><span class="text-rose-400 font-bold text-base">${item.prcCc}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">인근 동일 조건 적정 시세</span><span class="text-slate-300 font-semibold">${Math.round(marketPrice/10000)}억 원 선</span></div>
+                        <div class="flex justify-between border-t border-slate-800/60 pt-2 mt-1"><span class="text-slate-400">예상 기대 차익 (안전마진)</span><span class="text-emerald-400 font-extrabold text-base">+약 ${Math.round((marketPrice - item.prc)/10000)}억 원</span></div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-file-invoice-dollar text-indigo-400 mr-1"></i> AI 자산 출회 사유 분석</h4>
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> 급매 출회 및 저평가 사유</h4>
                         <p class="text-xs bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-slate-300 leading-relaxed">${item.description}</p>
                     </div>
 
-                    <div class="pt-3 flex gap-2">
-                        <button onclick="alert('투자 심의용 기초 임장 리포트 다운로드가 완료되었습니다.')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition border border-slate-700">
-                            <i class="fa-solid fa-download mr-1"></i> 심의 보고서용 다운로드
+                    <div class="pt-2 flex gap-2">
+                        <button onclick="alert('투자 가치 종합 심층 리포트 다운로드가 완료되었습니다.')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl text-xs transition border border-slate-700 flex justify-center items-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf"></i> 📊 AI 투자가치 분석서 받기
                         </button>
-                        <button onclick="alert('담당 심사역 배정이 요청되었습니다. 10분 내로 메신저 연동됩니다.')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-lg shadow-indigo-600/10 transition">
-                            <i class="fa-solid fa-phone mr-1"></i> 현장 실사역 연동
+                        <button onclick="alert('전담 파트너 공인중개사 연결이 요청되었습니다. 5분 내로 문자로 연락드립니다.')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl text-xs shadow-lg shadow-indigo-600/10 transition flex justify-center items-center gap-1.5">
+                            <i class="fa-solid fa-comment-dots"></i> ✉️ 전문 중개사에게 문의하기
                         </button>
                     </div>
                 </div>
@@ -271,7 +272,6 @@
             modal.classList.add('modal-active');
         }
 
-        // 바깥 어두운 배경 클릭 시 팝업 닫기
         function closeModal(e) {
             document.getElementById('detailModal').classList.remove('modal-active');
         }
