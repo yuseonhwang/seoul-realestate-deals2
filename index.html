@@ -23,7 +23,7 @@
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
             html, body { background: #0f172a !important; color: white !important; height: auto !important; min-height: auto !important; overflow: hidden !important; }
-            body * { visibility: hidden; height: 0 !important; overflow: hidden !hidden; margin: 0 !important; padding: 0 !important; }
+            body * { visibility: hidden; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
             #detailModal, #detailModal * { visibility: visible; height: auto !important; overflow: visible !important; }
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
@@ -34,46 +34,46 @@
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white flex items-center justify-center p-4">
 
-    <!-- 💡 [인트로 개편] 초고속 알림 및 압도적 접근성을 전면에 내세운 표지 화면 -->
+    <!-- 💡 [표지 개편] 어렵고 인위적인 단어를 빼고 직관성과 유용성을 살린 표지 화면 -->
     <div id="introCover" class="max-w-2xl w-full bg-slate-900/40 border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl text-center space-y-8 backdrop-blur-xl transition-all duration-500">
         <div class="space-y-3">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
-                <i class="fa-solid fa-bolt animate-bounce"></i> Real-Time Real Estate Notification System
+                <i class="fa-solid fa-home"></i> 서울 전역 실시간 급매물 트래커
             </div>
             <h1 class="text-5xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1">
                 ValuX 서울
             </h1>
             <p class="text-sm text-orange-400/90 font-medium tracking-wide">
-                누구보다 빠르게, 정확한 저평가 자산 선점 시스템
+                가장 쉽고 빠른 서울 부동산 급매 · 특가 자산 알리미
             </p>
         </div>
 
         <p class="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md mx-auto">
-            ValuX 서울은 복잡한 지표 분석을 배제하고, 서울 주거용 부동산 시장 내에서 <strong class="text-slate-200 font-semibold">가격 왜곡으로 출회된 초급매물을 실시간으로 감지</strong>합니다. 지체 없는 초고속 알림을 통해 우량 매물에 대한 핵심 접근성을 극대화합니다.
+            ValuX 서울은 서울 주거용 부동산 중 <strong class="text-slate-200 font-semibold">시세 대비 저렴하게 나온 진짜 급매물만 엄선하여 빠르게 알려주는 서비스</strong>입니다. 불필요한 탐색 시간을 줄이고, 검증된 특가 매물에 대한 똑똑한 접근성을 제공합니다.
         </p>
 
-        <!-- 3대 핵심 미션 카드 (접근성 및 속도 중심으로 워딩 변경) -->
+        <!-- 3대 핵심 미션 카드 (직관적인 멘트로 전면 수정) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left pt-2">
             <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
-                <i class="fa-solid fa-gauge-high text-orange-400 mb-2 block text-base"></i>
-                <h4 class="text-xs font-bold text-slate-200 mb-1">초고속 딜 레이턴시</h4>
-                <p class="text-[11px] text-slate-500 leading-normal">서울 25개 자치구 급매 데이터 수집 및 평균 0.6초 내 실시간 트리거 반영</p>
+                <i class="fa-solid fa-bolt text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">실시간 급매 스캔</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">서울 25개 자치구의 특가 매물 데이터를 놓치지 않고 실시간으로 추적</p>
             </div>
             <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
-                <i class="fa-solid fa-bullseye text-orange-400 mb-2 block text-base"></i>
-                <h4 class="text-xs font-bold text-slate-200 mb-1">정확한 시세 괴리 판정</h4>
-                <p class="text-[11px] text-slate-500 leading-normal">인근 단지 실거래가 대조를 통해 가짜 급매를 걸러내고 진짜 매물만 정밀 조준</p>
+                <i class="fa-solid fa-scale-balanced text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">시세 괴리율 분석</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">주변 단지 실거래가와 직접 비교하여 진짜 매력적인 매물만 판정</p>
             </div>
             <div class="bg-slate-950/60 border border-slate-800/50 p-4 rounded-xl">
-                <i class="fa-solid fa-arrow-up-right-from-square text-orange-400 mb-2 block text-base"></i>
-                <h4 class="text-xs font-bold text-slate-200 mb-1">독보적 정보 접근성</h4>
-                <p class="text-[11px] text-slate-500 leading-normal">중개사 연동 및 가로 1장 요약 리포트를 통해 핵심 자산 정보 선점권 부여</p>
+                <i class="fa-solid fa-file-pdf text-orange-400 mb-2 block text-base"></i>
+                <h4 class="text-xs font-bold text-slate-200 mb-1">1장 요약 리포트</h4>
+                <p class="text-[11px] text-slate-500 leading-normal">인쇄와 저장이 간편한 가로형 1페이지 가치 진단서 즉시 발급</p>
             </div>
         </div>
 
         <div class="pt-4">
             <button onclick="enterDashboard()" class="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold py-3.5 px-10 rounded-xl shadow-lg shadow-orange-600/20 transition active:scale-[0.98] flex justify-center items-center gap-2 mx-auto text-sm">
-                실시간 매물 스캔 가동하기 <i class="fa-solid fa-circle-arrow-right"></i>
+                엔진 가동 및 매물 확인하기 <i class="fa-solid fa-circle-arrow-right"></i>
             </button>
         </div>
     </div>
@@ -81,7 +81,7 @@
 
     <!-- 메인 대시보드 컨테이너 -->
     <div id="mainContent" class="max-w-4xl w-full mx-auto p-2 hidden transition-all duration-500">
-        <!-- 헤더 섹션 (속도 및 선점 위주 멘트 수정) -->
+        <!-- 헤더 섹션 -->
         <header class="mb-8 text-center pt-4">
             <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm">
                 <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
@@ -95,9 +95,8 @@
             </p>
         </header>
 
-        <!-- 💡 [대시보드 개편] 거시경제 변수 배제 -> 시스템의 실시간 처리 및 접근 속도 대시보드로 리워크 -->
+        <!-- 시스템 처리 및 접근 속도 대시보드 -->
         <div id="realtimeStatusDashboard" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <!-- 지표 1: 실시간 엔진 반응 속도 -->
             <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
                 <div class="flex justify-between items-start mb-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">엔진 데이터 레이턴시</span>
@@ -110,7 +109,6 @@
                 <p class="text-[11px] text-slate-500 mt-2">매물 출회와 동시에 시세 격차 분석 및 알림 트리거 대기</p>
             </div>
 
-            <!-- 지표 2: 현재 추적 중인 액티브 급매 딜 카운트 -->
             <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
                 <div class="flex justify-between items-start mb-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">괴리 자산 발견 건수</span>
@@ -123,7 +121,6 @@
                 <p class="text-[11px] text-slate-500 mt-2">시세 대비 기준 할인율 이상으로 필터링된 정확한 매물 수</p>
             </div>
 
-            <!-- 지표 3: 정보 선점 성공률 지수 -->
             <div class="bg-slate-900/80 border border-slate-800/80 p-4 rounded-xl shadow-xl backdrop-blur-sm">
                 <div class="flex justify-between items-start mb-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">정보 매칭 및 선점 속도</span>
@@ -201,30 +198,9 @@
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
-    <!-- 팝업 모달 뼈대 -->
-    <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-4xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div id="modalContent"></div>
-        </div>
-    </div>
-
     <script>
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
-
-        const districts = [
-            { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
-            { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
-            { name: "구로구", code: "1153000000" }, { name: "금천구", code: "1154500000" }, { name: "노원구", code: "1135000000" },
-            { name: "도봉구", code: "1132000000" }, { name: "동대문구", code: "1123000000" }, { name: "동작구", code: "1159000000" },
-            { name: "마포구", code: "1144000000" }, { name: "서대문구", code: "1141000000" }, { name: "서초구", code: "1165000000" },
-            { name: "성동구", code: "1120000000" }, { name: "성북구", code: "1129000000" }, { name: "송파구", code: "1171000000" },
-            { name: "양천구", code: "1147000000" }, { name: "영등포구", code: "1156000000" }, { name: "용산구", code: "1117000000" },
-            { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
-        ];
 
         function formatAssetPrice(priceBillionAmount) {
             const rawBill = Math.floor(priceBillionAmount);
@@ -281,7 +257,7 @@
                     if(['강북구', '도봉구', '금천구'].includes(districtName)) premium = 0.8;
 
                     let finalBasePrice = item.base * premium;
-                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2; //[cite: 1]
+                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2;[cite: 1]
 
                     const roundedPriceCc = formatAssetPrice(finalBasePrice);
 
@@ -324,7 +300,7 @@
             currentFetchedDeals.forEach(item => {
                 let calculatedDiscount = 12;
                 if (item.atclNm.includes('자이 프리시디움') && item.district === '강남구') {
-                    calculatedDiscount = 27; //[cite: 1]
+                    calculatedDiscount = 27;[cite: 1]
                 } else {
                     if(discountCut === 20) calculatedDiscount = Math.floor(Math.random() * (28 - 21 + 1)) + 21;
                     if(discountCut === 30) calculatedDiscount = Math.floor(Math.random() * (38 - 31 + 1)) + 31;
@@ -332,10 +308,10 @@
                 }
 
                 item.discount = calculatedDiscount;
-                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100))); //[cite: 1]
+                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100)));[cite: 1]
                 
                 const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
-                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4); //[cite: 1]
+                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);[cite: 1]
             });
 
             renderDeals();
@@ -435,9 +411,9 @@
             const formattedMarketPrice = formatAssetPrice(marketPrice / 10000);
             const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
 
-            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000); //[cite: 1]
-            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000); //[cite: 1]
-            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000); //[cite: 1]
+            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000);[cite: 1]
+            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);[cite: 1]
+            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000);[cite: 1]
 
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
@@ -560,7 +536,7 @@
                 intro.style.display = 'none';
                 main.classList.remove('hidden');
                 body.className = "gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white p-6 block";
-                fetchDeals(); // 진입 즉시 첫 스캔 기동
+                fetchDeals();
             }, 400);
         }
     </script>
