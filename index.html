@@ -45,7 +45,7 @@
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white flex items-center justify-center p-4">
 
-    <!-- 💡 표지 화면 (시작 시 노출 및 브랜드 약어 디테일 보강) -->
+    <!-- 표지 화면 (시작 시 노출 및 브랜드 약어 디테일 보강) -->
     <div id="introCover" class="max-w-2xl w-full bg-slate-900/40 border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl text-center space-y-8 backdrop-blur-xl transition-all duration-700 relative">
         
         <div class="space-y-3">
@@ -53,14 +53,14 @@
                 <i class="fa-solid fa-home"></i> 서울 전역 실시간 급매물 트래커
             </div>
             
-            <!-- 💡 애니메이션 타깃이 될 메인 타이틀 상자 -->
+            <!-- 애니메이션 타깃이 될 메인 타이틀 상자 -->
             <div id="introTitleWrapper" class="relative h-16 flex items-center justify-center">
                 <h1 id="introTitle" class="text-5xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1 select-none">
                     ValuX 서울
                 </h1>
             </div>
             
-            <!-- 💡 축약어의 의미를 직관적이고 고급스럽게 전면 표기 -->
+            <!-- 축약어의 의미를 직관적이고 고급스럽게 전면 표기 -->
             <p id="introSub" class="text-xs text-orange-400 font-bold tracking-widest uppercase transition-all duration-500">
                 Value <span class="text-slate-400 font-normal">Maximize</span> &amp; eXtract <span class="text-slate-500 font-light">(가치 극대화 및 추출 플랫폼)</span>
             </p>
@@ -105,10 +105,10 @@
         <header class="mb-8 text-center pt-4">
             <div id="mainBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm opacity-0 transition-opacity duration-500">
                 <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
-                실시간 서울 주거 자산 저평가 급매물 초고속 트래커 가동 중
+                실시간 서울 주거 자산 저평가 급매물 트래커 가동 중
             </div>
             
-            <!-- 💡 인트로의 제목이 스르륵 날아와 꽂힐 물리적 공간 예비 확보 -->
+            <!-- 인트로의 제목이 스르륵 날아와 꽂힐 물리적 공간 예비 확보 -->
             <div id="mainTitlePlaceholder" class="h-14 mb-3"></div>
             
             <p id="mainDesc" class="text-slate-400 mt-3 text-sm max-w-xl mx-auto leading-relaxed opacity-0 transition-opacity duration-500">
@@ -220,10 +220,22 @@
     </div>
 
     <script>
+        // 💡 중요 변수들을 전역(Global scope)으로 완벽하게 이동시켜 스크립트 멈춤 현상 차단
+        const districts = [
+            { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
+            { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
+            { name: "구로구", code: "1153000000" }, { name: "금천구", code: "1154500000" }, { name: "노원구", code: "1135000000" },
+            { name: "도봉구", code: "1132000000" }, { name: "동대문구", code: "1123000000" }, { name: "동작구", code: "1159000000" },
+            { name: "마포구", code: "1144000000" }, { name: "서대문구", code: "1141000000" }, { name: "서초구", code: "1165000000" },
+            { name: "성동구", code: "1120000000" }, { name: "성북구", code: "1129000000" }, { name: "송파구", code: "1171000000" },
+            { name: "양천구", code: "1147000000" }, { name: "영등포구", code: "1156000000" }, { name: "용산구", code: "1117000000" },
+            { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
+        ];
+
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
-        // 💡 [초고속 스르륵 전환 모듈] 제목은 솟아오르고 본문은 사라지며 대시보드가 부드럽게 매칭되는 고도화 스크립트
+        // 💡 [수정 완결] 먹통 버그를 완전히 해결한 화면 전환 트랜지션 함수
         function enterDashboardWithAnim() {
             const introTitle = document.getElementById('introTitle');
             const introSub = document.getElementById('introSub');
@@ -232,42 +244,40 @@
             const mainContent = document.getElementById('mainContent');
             const body = document.body;
 
-            // 1단계: 표지 글 내용들과 보조 문구들 스르륵 페이드 아웃 기동
+            // 1단계: 주변 텍스트 요소 페이드 아웃
             introSub.classList.add('opacity-0');
             introBody.classList.add('opacity-0', 'scale-95');
 
-            // 2단계: 메인 타이틀을 화면 최상단 중앙 헤더 좌표로 다이내믹 플라이업 트랜지션 단추 작동
+            // 2단계: 메인 타이틀을 화면 상단으로 비행(Fly-up)
             setTimeout(() => {
                 introTitle.classList.add('title-fly-up');
                 introCover.classList.add('bg-transparent', 'border-transparent', 'shadow-none', 'backdrop-blur-none');
             }, 100);
 
-            // 3단계: 메인 대시보드 구조 정렬 및 제목 제자리 안착 바인딩
+            // 3단계: 메인 대시보드 개방 및 앵커링 정렬
             setTimeout(() => {
-                // 부모 정렬 방식을 중앙(인트로용)에서 상단 일반 블록 스크롤로 해제
                 body.className = "gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white p-6 block";
                 introCover.style.display = 'none';
                 
-                // 메인 콘텐츠 박스 개방 및 페이드인 효과 연출
                 mainContent.classList.remove('hidden');
                 setTimeout(() => {
                     mainContent.classList.remove('opacity-0');
                     mainContent.classList.add('opacity-100');
                     
-                    // 플라이업 완료된 제목 뼈대를 메인 플레이스홀더 영역 안으로 원천 이식 안착
+                    // 날아온 제목을 대시보드 헤더 플레이스홀더에 영구 안착
                     const placeholder = document.getElementById('mainTitlePlaceholder');
                     introTitle.classList.remove('title-fly-up', 'position-fixed');
                     introTitle.className = "text-4xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-orange-200 bg-clip-text text-transparent inline-block";
                     placeholder.appendChild(introTitle);
 
-                    // 나머지 헤더 보조 멘트들 순차적 로드 등장
+                    // 나머지 보조 문구 노출
                     document.getElementById('mainBadge').classList.remove('opacity-0');
                     document.getElementById('mainDesc').classList.remove('opacity-0');
                     
-                    // 첫 매물 자동 스캔 기동
+                    // 자동으로 데이터 첫 스캔 가동
                     fetchDeals();
                 }, 50);
-            }, 750); // 타이틀이 위로 충분히 솟아오르는 리드타임 타임아웃 세팅
+            }, 750);
         }
 
         function formatAssetPrice(priceBillionAmount) {
@@ -277,6 +287,7 @@
             else return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
         }
 
+        // 초기 격자 로더 바인딩 실행
         const gridContainer = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -346,11 +357,12 @@
             const checkedBoxes = document.querySelectorAll('.district-checkbox:checked');
             const discountSelect = document.getElementById('discountSelect');
             const discountCut = parseInt(discountSelect.value);
+            const container = document.getElementById('resultContainer');
             const loading = document.getElementById('loading');
 
             if(checkedBoxes.length === 0) return;
 
-            currentFetchedDeals = [];
+            container.innerHTML = '';
             loading.classList.remove('hidden');
 
             await new Promise(resolve => setTimeout(resolve, 500));
@@ -433,7 +445,7 @@
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> 실시간 자산 스캔 결과</p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
                                 <li>• 정상적인 시장 균형가 대비 <span class="text-orange-400 font-bold">-${item.discount}%</span> 격차 발생</li>
-                                <li>• 카드를 터치하시면 가치 실사 보고서를 즉시 로드합니다.</li>
+                                <li>• 카드를 터치하시면 상세 분석 보고서를 즉시 연동합니다.</li>
                             </ul>
                         </div>
                     </div>
@@ -496,6 +508,7 @@
                         <div class="space-y-4">
                             <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-1 text-[11px]">
                                 <p class="text-[11px] text-slate-300 p-2 font-bold"><i class="fa-solid fa-code-compare text-orange-400 mr-1.5"></i> 주변 단지 실시간 시세 격차 대조 대시보드</p>
+                                <p class="text-[10px] text-slate-400 px-2 pb-2 leading-relaxed">${distName} 핵심 권역 내 동일 면적 기준 타 단지 매물들과의 실시간 격차 데이터입니다.</p>
                                 <table class="w-full text-left border-collapse">
                                     <thead>
                                         <tr class="border-b border-slate-800 text-slate-400 bg-slate-900/50">
