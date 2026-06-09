@@ -39,7 +39,7 @@
             #detailModal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #0f172a !important; display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
             #detailModal > div { background: transparent !important; border: none !important; max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
             .action-buttons, .fa-xmark, #realtimeStatusDashboard, #filterSection, #tabSortContainer, #introCover { display: none !important; }
-            .print-grid { display: grid !important; grid-template-cols: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
+            .print-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 20px !important; }
         }
     </style>
 </head>
@@ -219,9 +219,48 @@
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
+    <!-- 매물 상세 가치 진단 모달 -->
+    <div id="detailModal" class="hidden fixed inset-0 z-[90] items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4" onclick="closeModal(event)">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative" onclick="event.stopPropagation()">
+            <button onclick="closeModal(event)" aria-label="닫기" class="absolute top-4 right-4 text-slate-500 hover:text-white text-xl transition z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
     <script>
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
+
+        // 서울 25개 자치구 (code = 네이버 부동산 cortarNo 법정동 코드)
+        const districts = [
+            { name: '종로구',   code: '1111000000' },
+            { name: '중구',     code: '1114000000' },
+            { name: '용산구',   code: '1117000000' },
+            { name: '성동구',   code: '1120000000' },
+            { name: '광진구',   code: '1121500000' },
+            { name: '동대문구', code: '1123000000' },
+            { name: '중랑구',   code: '1126000000' },
+            { name: '성북구',   code: '1129000000' },
+            { name: '강북구',   code: '1130500000' },
+            { name: '도봉구',   code: '1132000000' },
+            { name: '노원구',   code: '1135000000' },
+            { name: '은평구',   code: '1138000000' },
+            { name: '서대문구', code: '1141000000' },
+            { name: '마포구',   code: '1144000000' },
+            { name: '양천구',   code: '1147000000' },
+            { name: '강서구',   code: '1150000000' },
+            { name: '구로구',   code: '1153000000' },
+            { name: '금천구',   code: '1154500000' },
+            { name: '영등포구', code: '1156000000' },
+            { name: '동작구',   code: '1159000000' },
+            { name: '관악구',   code: '1162000000' },
+            { name: '서초구',   code: '1165000000' },
+            { name: '강남구',   code: '1168000000' },
+            { name: '송파구',   code: '1171000000' },
+            { name: '강동구',   code: '1174000000' }
+        ];
 
         // 💡 [초고속 스르륵 전환 모듈] 제목은 솟아오르고 본문은 사라지며 대시보드가 부드럽게 매칭되는 고도화 스크립트
         function enterDashboardWithAnim() {
@@ -321,7 +360,7 @@
                     if(['강북구', '도봉구', '금천구'].includes(districtName)) premium = 0.8;
 
                     let finalBasePrice = item.base * premium;
-                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2;[cite: 1]
+                    if (districtName === '강남구' && item.name === '자이 프리시디움') finalBasePrice = 23.2;
 
                     const roundedPriceCc = formatAssetPrice(finalBasePrice);
 
@@ -364,7 +403,7 @@
             currentFetchedDeals.forEach(item => {
                 let calculatedDiscount = 12;
                 if (item.atclNm.includes('자이 프리시디움') && item.district === '강남구') {
-                    calculatedDiscount = 27;[cite: 1]
+                    calculatedDiscount = 27;
                 } else {
                     if(discountCut === 20) calculatedDiscount = Math.floor(Math.random() * (28 - 21 + 1)) + 21;
                     if(discountCut === 30) calculatedDiscount = Math.floor(Math.random() * (38 - 31 + 1)) + 31;
@@ -372,10 +411,10 @@
                 }
 
                 item.discount = calculatedDiscount;
-                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100)));[cite: 1]
+                item.marketPrice = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 320000 : Math.round(item.prc / (1 - (calculatedDiscount / 100)));
                 
                 const pAttr = 98; const pLiquidity = 88; const pGrowth = 92;
-                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);[cite: 1]
+                item.totalScore = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? 76 : Math.floor((pAttr + calculatedDiscount + pLiquidity + pGrowth) / 4);
             });
 
             renderDeals();
@@ -429,7 +468,7 @@
                         <span class="bg-gradient-to-r from-orange-600 to-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1.5">
                             <i class="fa-solid fa-shield-halved text-[10px]"></i> 시세 괴리율 -${item.discount}%
                         </span>
-                        <div class="tooltip-box absolute right-0 top-9 bg-slate-950 border border-slate-850 text-slate-300 text-xs rounded-xl p-4 w-60 z-50 shadow-2xl leading-relaxed">
+                        <div class="tooltip-box absolute right-0 top-9 bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-xl p-4 w-60 z-50 shadow-2xl leading-relaxed">
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> 실시간 자산 스캔 결과</p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
                                 <li>• 정상적인 시장 균형가 대비 <span class="text-orange-400 font-bold">-${item.discount}%</span> 격차 발생</li>
@@ -449,9 +488,9 @@
             const formattedMarketPrice = formatAssetPrice(marketPrice / 10000);
             const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
 
-            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000);[cite: 1]
-            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);[cite: 1]
-            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000);[cite: 1]
+            const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000);
+            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);
+            const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000);
 
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
