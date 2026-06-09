@@ -156,3 +156,31 @@
                                         <li>• 주변 동일면적 실거래가 대비 <span class="text-amber-400 font-bold">${calculatedDiscount}%</span> 급락</li>
                                         <li>• 단지 내 최저가 5% 이내 진입 자산</li>
                                         <li>• 실시간 분석 완료 (Vercel Edge 연산)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    }
+                });
+
+                if(container.children.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 bg-slate-900/40 border border-slate-800 rounded-2xl text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass-minus text-2xl mb-3 block text-slate-500"></i>
+                            선택하신 조건(${discountCut}% 이상 하락)에 맞는 초급매물이 현재 일자에 존재하지 않습니다.
+                        </div>`;
+                }
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-red-500/5 border border-red-500/10 rounded-2xl text-red-400 text-sm">
+                        <i class="fa-solid fa-circle-exclamation text-xl mb-2 block"></i>
+                        데이터 동기화 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>
