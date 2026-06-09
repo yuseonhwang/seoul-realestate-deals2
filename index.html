@@ -16,6 +16,9 @@
             color: white;
             box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
+        /* 모달 팝업 애니메이션 */
+        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body class="gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
@@ -30,7 +33,7 @@
                 <i class="fa-solid fa-chart-line text-indigo-400"></i> 서울 주거 자산 급매 알리미
             </h1>
             <p class="text-slate-400 mt-3 text-sm max-w-md mx-auto leading-relaxed">
-                시세 대비 <span class="text-indigo-300 font-semibold">10%~30% 이상 저렴한</span> 하위 5% 저평가 자산을 복수 지역별로 스캔합니다.
+                매물 카드를 <span class="text-emerald-400 font-semibold">클릭</span>하시면 AI 심층 가치평가 및 투자 제안서 요약을 확인할 수 있습니다.
             </p>
         </header>
 
@@ -74,6 +77,15 @@
         <div id="resultContainer" class="space-y-4"></div>
     </div>
 
+    <div id="detailModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 justify-center items-center hidden p-4" onclick="closeModal(event)">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-lg w-full shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="document.getElementById('detailModal').classList.remove('modal-active')" class="absolute top-4 right-4 text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
     <script>
         const districts = [
             { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
@@ -86,7 +98,6 @@
             { name: "은평구", code: "1138000000" }, { name: "종로구", code: "1111000000" }, { name: "중구", code: "1114000000" }, { name: "중랑구", code: "1126000000" }
         ];
 
-        // 자치구 체크박스 배치 (시연 편의상 강남, 마포, 용산, 서초 디폴트 체크)
         const grid = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -105,33 +116,27 @@
             document.querySelectorAll('.district-checkbox').forEach(chk => chk.checked = status);
         }
 
-        // 네이버 실거래 덤프 엔진 기반 초정밀 시연 자산 데이터 풀
+        // 정밀 시연 자산 풀 (상세 정보 멘트 고도화 추가)
         function generateHighlyAccurateDeals(districtName) {
             const pool = {
                 "아파트": [
-                    { name: "자이 프리시디움", size: "84/59", base: 14.5 },
-                    { name: "아이파크 센트럴", size: "112/84", base: 19.8 },
-                    { name: "힐스테이트 에코포레", size: "74/49", base: 11.2 },
-                    { name: "래미안 프라임하임", size: "84/59", base: 16.3 },
-                    { name: "푸르지오 마스터즈", size: "114/84", base: 18.5 },
-                    { name: "더샵 리버사이드", size: "145/118", base: 24.0 }
+                    { name: "자이 프리시디움", size: "84/59", base: 14.5, desc: "역세권 대단지 랜드마크 자산으로, 소유주의 주택담보대출 리파이낸싱 실패에 따른 법인 긴급 급매물건입니다." },
+                    { name: "아이파크 센트럴", size: "112/84", base: 19.8, desc: "한강 조망권이 확보된 중대형 평형으로, 다주택자 양도세 중과 배제 기한 내 처분을 위한 일시적 가격 하향 조정 자산입니다." },
+                    { name: "힐스테이트 에코포레", size: "74/49", base: 11.2, desc: "주변 대규모 뉴타운 개발 호재 중심지에 위치해 있으며, 상속세 재원 마련을 위한 유가족 측의 초급매 요청 자산입니다." },
+                    { name: "래미안 프라임하임", size: "84/59", base: 16.3, desc: "학군지 인접 선호도 최고 등급 단지입니다. 해외 이주 계약 체결로 인해 시장 평단가 대비 대폭 낮춘 조건으로 긴급 출회되었습니다." }
                 ],
                 "빌라/연립": [
-                    { name: "프레시티 빌리지", size: "56/42", base: 4.2 },
-                    { name: "더힐 스위트하우스", size: "65/52", base: 5.8 }
+                    { name: "프레시티 빌리지", size: "56/42", base: 4.2, desc: "재개발 정비구역 지정 추진 동의율 70% 돌파 구역 내 지분 물건으로, 초기 투자 자금 회수를 원치 않는 개인의 급전 마련 물건입니다." }
                 ],
                 "오피스텔": [
-                    { name: "루체 스타뷰 메트로", size: "45/32", base: 3.5 },
-                    { name: "시티라이프 오피스 타워", size: "38/24", base: 2.9 }
+                    { name: "루체 스타뷰 메트로", size: "45/32", base: 3.5, desc: "중심업무지구(CBD) 직주근접 독점 직장인 임차 자산으로, 분양권 전매 제한 해제 직후 출회된 무피에 준하는 특가 매물입니다." }
                 ]
             };
 
             let results = [];
-            // 각 구별로 아파트 2~3개, 빌라 1개, 오피스텔 1개씩 다채롭게 매물 조합 생성
             Object.keys(pool).forEach(type => {
                 const items = pool[type];
                 items.forEach(item => {
-                    // 구별 급지에 따른 프리미엄 계수 가중치 부여 (시연용 디테일)
                     let premium = 1.0;
                     if(['강남구', '서초구'].includes(districtName)) premium = 1.6;
                     if(['용산구', '송파구', '성동구', '마포구'].includes(districtName)) premium = 1.3;
@@ -146,11 +151,12 @@
                         spc1: item.size.split('/')[0],
                         spc2: item.size.split('/')[1],
                         prc: Math.round(finalBasePrice * 10000),
-                        prcCc: `${Math.floor(finalBasePrice)}억 ${Math.round((finalBasePrice % 1) * 10) * 1000}만 원`
+                        prcCc: `${Math.floor(finalBasePrice)}억 ${Math.round((finalBasePrice % 1) * 10) * 1000}만 원`,
+                        description: item.desc,
+                        district: districtName
                     });
                 });
             });
-            // 무작위 순서 섞기
             return results.sort(() => Math.random() - 0.5);
         }
 
@@ -168,20 +174,17 @@
             container.innerHTML = '';
             loading.classList.remove('hidden');
 
-            // 0.8초의 정밀 인공지능 분석 연산 버퍼 연출 (시연 가시성 극대화)
             await new Promise(resolve => setTimeout(resolve, 800));
             loading.classList.add('hidden');
 
             let masterDealsArray = [];
             
-            // 전송 오류 및 네이버 블락에 영향받지 않는 로컬 하이브리드 코어 파이프라인
             checkedBoxes.forEach(box => {
                 const districtName = box.getAttribute('data-name');
                 masterDealsArray = masterDealsArray.concat(generateHighlyAccurateDeals(districtName));
             });
 
             masterDealsArray.forEach(item => {
-                // 선택한 하락폭 커트라인에 딱 맞춰 스크리닝되도록 변수 제어 (10%, 20%, 30% 스위칭 연동)
                 let calculatedDiscount = 12;
                 if(discountCut === 20) calculatedDiscount = Math.floor(Math.random() * (28 - 21 + 1)) + 21;
                 if(discountCut === 30) calculatedDiscount = Math.floor(Math.random() * (38 - 31 + 1)) + 31;
@@ -191,8 +194,12 @@
                 const marketPrice = Math.round(basePrice / (1 - (calculatedDiscount / 100)));
 
                 const card = document.createElement('div');
-                card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-indigo-500/50 transition-all duration-300 backdrop-blur-sm group";
+                // 💡 cursor-pointer와 클릭 이벤트를 추가하여 카드를 누르면 팝업이 뜨게 연동
+                card.className = "bg-slate-900/40 border border-slate-800/80 p-5 rounded-2xl shadow-xl flex justify-between items-center relative hover:border-indigo-500/50 hover:bg-slate-900/80 cursor-pointer transition-all duration-300 backdrop-blur-sm group";
                 
+                // 카드 영역 전체 클릭 시 모달 팝업 가동 권한 부여
+                card.onclick = () => openDetailModal(item, marketPrice, calculatedDiscount);
+
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-2 mb-2">
@@ -202,11 +209,11 @@
                         <p class="text-xs text-slate-400">${item.flrInfo}층 · 공급/전용: ${item.spc1}/${item.spc2}㎡</p>
                         <p class="text-sm text-slate-300 mt-2">
                             매매가 <span class="font-extrabold text-rose-400 text-base">${item.prcCc}</span> 
-                            <span class="text-xs text-slate-500 ml-1">(동일 면적정상 시세: ${Math.round(marketPrice/10000)}억 수준 대비)</span>
+                            <span class="text-xs text-slate-500 ml-1">(시세 대비 저평가 단지)</span>
                         </p>
                     </div>
                     
-                    <div class="relative has-tooltip cursor-pointer select-none">
+                    <div class="relative has-tooltip select-none" onclick="event.stopPropagation()">
                         <span class="bg-gradient-to-r from-rose-500 to-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center gap-1">
                             <i class="fa-solid fa-fire text-[10px]"></i> ${calculatedDiscount}% 특가
                         </span>
@@ -215,9 +222,8 @@
                                 <i class="fa-solid fa-triangle-exclamation"></i> 시스템 급매 시그널
                             </p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
-                                <li>• 해당 자치구 동일면적 실거래가 평균 대비 <span class="text-amber-400 font-bold">${calculatedDiscount}%</span> 저평가</li>
-                                <li>• 단지 내 최저 호가 기준 하위 5% 이내 진입 자산</li>
-                                <li>• 데이터 분석 완료 (Alternative-IQ 코어 연산)</li>
+                                <li>• 주변 실거래가 평균 대비 <span class="text-amber-400 font-bold">${calculatedDiscount}%</span> 저평가</li>
+                                <li>• 클릭 시 심층 투자 분석 정보 열람 가능</li>
                             </ul>
                         </div>
                     </div>
@@ -225,8 +231,51 @@
                 container.appendChild(card);
             });
         }
-        
-        // 초기 로드 시 자동으로 기본 체크된 지역 스캔 구동
+
+        // 팝업 모달창 열기 함수
+        function openDetailModal(item, marketPrice, discount) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">${item.rletTpNm}</span>
+                        <span class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold px-2.5 py-0.5 rounded-md">${discount}% 초저평가</span>
+                    </div>
+                    
+                    <h2 class="text-xl font-extrabold text-white">${item.atclNm} (${item.flrInfo}층)</h2>
+                    
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-slate-400">공급/전용 면적</span><span class="text-slate-200 font-semibold">${item.spc1}㎡ / ${item.spc2}㎡</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">현재 급매 제안가</span><span class="text-rose-400 font-bold text-base">${item.prcCc}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">정상 시장 가치(시세)</span><span class="text-slate-300 font-semibold">${Math.round(marketPrice/10000)}억 원 수준</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">자산 안전 마진 확보액</span><span class="text-emerald-400 font-bold">+약 ${Math.round((marketPrice - item.prc)/10000)}억 원</span></div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider"><i class="fa-solid fa-file-invoice-dollar text-indigo-400 mr-1"></i> AI 자산 출회 사유 분석</h4>
+                        <p class="text-xs bg-slate-800/40 p-3 rounded-xl border border-slate-800 text-slate-300 leading-relaxed">${item.description}</p>
+                    </div>
+
+                    <div class="pt-3 flex gap-2">
+                        <button onclick="alert('투자 심의용 기초 임장 리포트 다운로드가 완료되었습니다.')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2.5 px-4 rounded-xl text-xs transition border border-slate-700">
+                            <i class="fa-solid fa-download mr-1"></i> 심의 보고서용 다운로드
+                        </button>
+                        <button onclick="alert('담당 심사역 배정이 요청되었습니다. 10분 내로 메신저 연동됩니다.')" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-lg shadow-indigo-600/10 transition">
+                            <i class="fa-solid fa-phone mr-1"></i> 현장 실사역 연동
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.classList.add('modal-active');
+        }
+
+        // 바깥 어두운 배경 클릭 시 팝업 닫기
+        function closeModal(e) {
+            document.getElementById('detailModal').classList.remove('modal-active');
+        }
+
         window.onload = () => { fetchDeals(); };
     </script>
 </body>
