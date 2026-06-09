@@ -437,7 +437,7 @@
             });
         }
 
-        // 💡 [버그 100% 완결 복구] 마크업 레이아웃 누락을 전면 제거한 모달 리포트 브릿지 엔진
+        // 💡 [버그 원천 해결] 오타 마크업 파편을 제거하여 연산을 정상화한 모달 스크립트
         function openDetailModal(item, marketPrice, discount) {
             const modal = document.getElementById('detailModal');
             const content = document.getElementById('modalContent');
@@ -544,6 +544,7 @@
             `;
             modal.classList.add('modal-active');
         }
+        
         function closeModal(e) { document.getElementById('detailModal').classList.remove('modal-active'); }
     </script>
 </body>
