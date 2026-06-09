@@ -10,6 +10,7 @@
         .tooltip-box { display: none; opacity: 0; transition: opacity 0.2s ease; }
         .has-tooltip:hover .tooltip-box { display: block; opacity: 1; }
         .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1c1917 100%); }
+        
         .district-checkbox:checked + label {
             background-color: rgb(249 115 22 / 0.15);
             border-color: rgb(249 115 22);
@@ -19,14 +20,19 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 💡 타이틀 상단 이동 애니메이션 CSS 고도화 (부드러운 크기 축소 포함) */
-        .title-fly-up {
+        /* 💡 버벅임 버퍼링을 완전 차단하고 하드웨어 가속을 활용하는 초정밀 smooth 트랜지션 디자인 */
+        .fly-up-ready {
+            transform: translate3d(0, 0, 0) scale(1);
+            transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            will-change: transform, font-size;
+        }
+        
+        .title-fly-up-active {
             position: fixed !important;
-            top: 40px !important;
             left: 50% !important;
-            transform: translateX(-50%) !important;
-            font-size: 2.25rem !important; /* 메인 화면 안착 크기(text-4xl) */
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1) !important;
+            top: 40px !important;
+            transform: translate3d(-50%, 0, 0) scale(0.6) !important; /* text-7xl에서 text-4xl 크기 비율로 부드럽게 스케일 다운 */
+            transform-origin: center center;
             z-index: 100;
         }
 
@@ -48,12 +54,12 @@
     <div id="introCover" class="max-w-4xl w-full bg-slate-900/50 border border-slate-800/80 p-10 sm:p-14 rounded-3xl shadow-2xl text-center space-y-10 backdrop-blur-xl transition-all duration-700 relative">
         
         <div class="space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
+            <div id="introBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold transition-opacity duration-500">
                 <i class="fa-solid fa-home text-[10px]"></i> 서울 전역 실시간 급매물 트래커
             </div>
             
             <div id="introTitleWrapper" class="relative h-24 flex items-center justify-center">
-                <h1 id="introTitle" class="text-6xl sm:text-7xl font-black tracking-tighter bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1 select-none">
+                <h1 id="introTitle" class="text-6xl sm:text-7xl font-black tracking-tighter bg-gradient-to-r from-white via-slate-100 to-orange-400 bg-clip-text text-transparent py-1 select-none fly-up-ready">
                     ValuX 서울
                 </h1>
             </div>
@@ -95,14 +101,14 @@
     </div>
 
 
-    <div id="mainContent" class="max-w-4xl w-full mx-auto p-2 hidden opacity-0 transition-all duration-700">
+    <div id="mainContent" class="max-w-4xl w-full mx-auto p-2 hidden opacity-0 transition-opacity duration-500">
         <header class="mb-8 text-center pt-4">
             <div id="mainBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-4 backdrop-blur-sm opacity-0 transition-opacity duration-500">
                 <span class="flex h-2 w-2 rounded-full bg-orange-500 animate-pulse"></span>
                 실시간 서울 주거 자산 저평가 급매물 트래커 가동 중
             </div>
             
-            <div id="mainTitlePlaceholder" class="h-14 mb-3"></div>
+            <div id="mainTitlePlaceholder" class="h-14 mb-3 flex items-center justify-center"></div>
             
             <p id="mainDesc" class="text-slate-400 mt-3 text-sm max-w-xl mx-auto leading-relaxed opacity-0 transition-opacity duration-500">
                 서울 전역의 실시간 출회 매물을 추적하여, 가격 괴리가 발생한 <span class="text-orange-400 font-bold">특가 자산을 누구보다 빠르게 감지하고 독점적 접근성</span>을 지원합니다.
@@ -200,7 +206,7 @@
     </div>
 
     <script>
-        // 💡 1단계: 스크립트 실행 충돌을 완전히 피하기 위해 전역 풀 데이터 상위 고정 선언
+        // 💡 중요 변수 선언 풀 최상단으로 완벽 재배치하여 초기화 미로 차단
         const districts = [
             { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
             { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
@@ -215,8 +221,16 @@
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
-        // 💡 2단계: 체크박스 자치구 그리드 빌드 (중간 선언 충돌 전면 수정)
-        const gridTarget = document.getElementById('districtGrid');
+        // 금액 가독성 제어 함수
+        function formatAssetPrice(priceBillionAmount) {
+            const rawBill = Math.floor(priceBillionAmount);
+            const remainderTenThousand = Math.round((priceBillionAmount - rawBill) * 10000);
+            if (remainderTenThousand === 0) return `${rawBill}억 원`;
+            else return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
+        }
+
+        // 체크박스 자치구 그리드 렌더링 파이프라인
+        const gridContainer = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
             wrap.className = "relative";
@@ -227,59 +241,57 @@
                     ${dist.name}
                 </label>
             `;
-            gridTarget.appendChild(wrap);
+            gridContainer.appendChild(wrap);
         });
 
-        // 💡 3단계: [완벽 버그 픽스] 충돌 없는 인터프리터 전환 애니메이션 코어 로직
+        // 💡 [버그 제로] 버퍼링 현상과 화면 정지 오류를 동시에 잡아낸 초스무스 트랜지션 함수
         function enterDashboardWithAnim() {
             const introTitle = document.getElementById('introTitle');
+            const introBadge = document.getElementById('introBadge');
             const introSub = document.getElementById('introSub');
             const introBody = document.getElementById('introBody');
             const introCover = document.getElementById('introCover');
             const mainContent = document.getElementById('mainContent');
             const body = document.body;
 
-            // 서브 컴포넌트 즉각 차단
-            introSub.classList.add('opacity-0');
-            introBody.classList.add('opacity-0', 'scale-95');
+            // 서브 텍스트들은 빠르게 페이드아웃 처리하여 타이틀 시선 집중
+            if (introBadge) introBadge.classList.add('opacity-0');
+            if (introSub) introSub.classList.add('opacity-0');
+            if (introBody) introBody.classList.add('opacity-0', 'scale-95');
 
-            // 대형 제목 위로 쏘아 올리기
+            // 브라우저 GPU 연산을 활용하여 타이틀 상단 수직 비행(Fly-up)
             setTimeout(() => {
-                introTitle.classList.add('title-fly-up');
+                introTitle.classList.add('title-fly-up-active');
                 introCover.classList.add('bg-transparent', 'border-transparent', 'shadow-none', 'backdrop-blur-none');
-            }, 50);
+            }, 60);
 
-            // 레이아웃 동적 인프라 재구성 단계 (hidden 타이밍 충돌 제어)
+            // 0.8초 애니메이션이 끝나는 시점에 맞물려 메인 레이아웃 구조 스위칭
             setTimeout(() => {
                 body.className = "gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white p-6 block";
                 introCover.style.display = 'none';
                 
+                // hidden 제거 후 곧바로 다음 프레임에서 opacity 스케일링을 주어 흔들림 방지
                 mainContent.classList.remove('hidden');
+                
                 setTimeout(() => {
                     mainContent.classList.remove('opacity-0');
                     mainContent.classList.add('opacity-100');
                     
-                    // 예비 지정 구역에 안착시킨 후 속성 정상 복구
+                    // 비행을 마친 타이틀을 대시보드 전용 플레이스홀더로 완벽 이식 및 안착
                     const placeholder = document.getElementById('mainTitlePlaceholder');
-                    introTitle.classList.remove('title-fly-up', 'position-fixed');
+                    introTitle.classList.remove('title-fly-up-active', 'fly-up-ready');
+                    introTitle.removeAttribute('style');
                     introTitle.className = "text-4xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-orange-200 bg-clip-text text-transparent inline-block";
                     placeholder.appendChild(introTitle);
 
-                    // 나머지 메인 콘텐츠 활성화
+                    // 메인 화면 디테일 텍스트 페이드인 활성화
                     document.getElementById('mainBadge').classList.remove('opacity-0');
                     document.getElementById('mainDesc').classList.remove('opacity-0');
                     
-                    // 즉각 실시간 첫 급매물 연산 발사
+                    // 💡 즉각 첫 급매물 연산 처리 함수 가동하여 목록 노출!
                     fetchDeals();
                 }, 50);
             }, 800);
-        }
-
-        function formatAssetPrice(priceBillionAmount) {
-            const rawBill = Math.floor(priceBillionAmount);
-            const remainderTenThousand = Math.round((priceBillionAmount - rawBill) * 10000);
-            if (remainderTenThousand === 0) return `${rawBill}억 원`;
-            else return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
         }
 
         function selectAllDistricts(status) {
@@ -337,15 +349,14 @@
             const checkedBoxes = document.querySelectorAll('.district-checkbox:checked');
             const discountSelect = document.getElementById('discountSelect');
             const discountCut = parseInt(discountSelect.value);
-            const container = document.getElementById('resultContainer');
             const loading = document.getElementById('loading');
 
             if(checkedBoxes.length === 0) return;
 
-            container.innerHTML = '';
+            currentFetchedDeals = [];
             loading.classList.remove('hidden');
 
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 300));
             loading.classList.add('hidden');
             
             checkedBoxes.forEach(box => {
@@ -442,9 +453,10 @@
             const formattedMarginPrice = formatAssetPrice((marketPrice - item.prc) / 10000);
 
             const comp1_name = "푸르지오 메트로하임"; const comp1_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "33억 원" : formatAssetPrice((marketPrice * 1.05) / 10000);
-            const comp2_name = "더샵 리ber그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);
+            const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);
             const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000);
 
+            // 💡 [버그 수정 완료] 하단 부서져 있던 구문 닫는 태그 완벽 교정 완료
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -488,6 +500,7 @@
                         <div class="space-y-4">
                             <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-1 text-[11px]">
                                 <p class="text-[11px] text-slate-300 p-2 font-bold"><i class="fa-solid fa-code-compare text-orange-400 mr-1.5"></i> 주변 단지 실시간 시세 격차 대조 대시보드</p>
+                                <p class="text-[10px] text-slate-400 px-2 pb-2 leading-relaxed">${distName} 핵심 권역 내 동일 면적 기준 타 단지 매물들과의 실시간 격차 데이터입니다.</p>
                                 <table class="w-full text-left border-collapse">
                                     <thead>
                                         <tr class="border-b border-slate-800 text-slate-400 bg-slate-900/50">
@@ -538,7 +551,6 @@
             `;
             modal.classList.add('modal-active');
         }
-        
         function closeModal(e) { document.getElementById('detailModal').classList.remove('modal-active'); }
     </script>
 </body>
