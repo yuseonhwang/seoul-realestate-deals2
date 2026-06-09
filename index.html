@@ -20,10 +20,10 @@
         .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 💡 버벅임 버퍼링을 완전 차단하고 하드웨어 가속을 활용하는 초정밀 smooth 트랜지션 디자인 */
+        /* 💡 버벅임 없이 미끄러지듯 날아가는 하드웨어 가속 트랜지션 애니메이션 */
         .fly-up-ready {
             transform: translate3d(0, 0, 0) scale(1);
-            transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.75s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), font-size 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
             will-change: transform, font-size;
         }
         
@@ -31,7 +31,7 @@
             position: fixed !important;
             left: 50% !important;
             top: 40px !important;
-            transform: translate3d(-50%, 0, 0) scale(0.6) !important; /* text-7xl에서 text-4xl 크기 비율로 부드럽게 스케일 다운 */
+            transform: translate3d(-50%, 0, 0) scale(0.55) !important; /* 대형 제목에서 헤더 안착 규격으로 스무스하게 축소 변환 */
             transform-origin: center center;
             z-index: 100;
         }
@@ -65,7 +65,7 @@
             </div>
             
             <p id="introSub" class="text-xs sm:text-sm text-orange-400 font-black tracking-widest uppercase transition-all duration-500">
-                Value <span class="text-slate-400 font-normal">Maximize</span> &amp; eXtract <span class="text-slate-500 font-light">(가치 극대화 및 추출 시스템)</span>
+                Value <span class="text-slate-400 font-normal">Maximize</span> &amp; eXtract
             </p>
         </div>
 
@@ -206,7 +206,6 @@
     </div>
 
     <script>
-        // 💡 중요 변수 선언 풀 최상단으로 완벽 재배치하여 초기화 미로 차단
         const districts = [
             { name: "강남구", code: "1168000000" }, { name: "강동구", code: "1174000000" }, { name: "강북구", code: "1130500000" },
             { name: "강서구", code: "1150000000" }, { name: "관악구", code: "1162000000" }, { name: "광진구", code: "1121500000" },
@@ -221,7 +220,6 @@
         let currentFetchedDeals = [];
         let currentActiveTab = 'ALL';
 
-        // 금액 가독성 제어 함수
         function formatAssetPrice(priceBillionAmount) {
             const rawBill = Math.floor(priceBillionAmount);
             const remainderTenThousand = Math.round((priceBillionAmount - rawBill) * 10000);
@@ -229,7 +227,6 @@
             else return `${rawBill}억 ${remainderTenThousand.toLocaleString()}만 원`;
         }
 
-        // 체크박스 자치구 그리드 렌더링 파이프라인
         const gridContainer = document.getElementById('districtGrid');
         districts.forEach((dist, idx) => {
             const wrap = document.createElement('div');
@@ -244,7 +241,6 @@
             gridContainer.appendChild(wrap);
         });
 
-        // 💡 [버그 제로] 버퍼링 현상과 화면 정지 오류를 동시에 잡아낸 초스무스 트랜지션 함수
         function enterDashboardWithAnim() {
             const introTitle = document.getElementById('introTitle');
             const introBadge = document.getElementById('introBadge');
@@ -254,41 +250,32 @@
             const mainContent = document.getElementById('mainContent');
             const body = document.body;
 
-            // 서브 텍스트들은 빠르게 페이드아웃 처리하여 타이틀 시선 집중
             if (introBadge) introBadge.classList.add('opacity-0');
             if (introSub) introSub.classList.add('opacity-0');
             if (introBody) introBody.classList.add('opacity-0', 'scale-95');
 
-            // 브라우저 GPU 연산을 활용하여 타이틀 상단 수직 비행(Fly-up)
             setTimeout(() => {
                 introTitle.classList.add('title-fly-up-active');
                 introCover.classList.add('bg-transparent', 'border-transparent', 'shadow-none', 'backdrop-blur-none');
             }, 60);
 
-            // 0.8초 애니메이션이 끝나는 시점에 맞물려 메인 레이아웃 구조 스위칭
             setTimeout(() => {
                 body.className = "gradient-bg text-slate-100 font-sans min-h-screen antialiased selection:bg-orange-500 selection:text-white p-6 block";
                 introCover.style.display = 'none';
-                
-                // hidden 제거 후 곧바로 다음 프레임에서 opacity 스케일링을 주어 흔들림 방지
                 mainContent.classList.remove('hidden');
                 
                 setTimeout(() => {
                     mainContent.classList.remove('opacity-0');
                     mainContent.classList.add('opacity-100');
                     
-                    // 비행을 마친 타이틀을 대시보드 전용 플레이스홀더로 완벽 이식 및 안착
                     const placeholder = document.getElementById('mainTitlePlaceholder');
                     introTitle.classList.remove('title-fly-up-active', 'fly-up-ready');
                     introTitle.removeAttribute('style');
                     introTitle.className = "text-4xl font-black tracking-tight bg-gradient-to-r from-white via-slate-200 to-orange-200 bg-clip-text text-transparent inline-block";
                     placeholder.appendChild(introTitle);
 
-                    // 메인 화면 디테일 텍스트 페이드인 활성화
                     document.getElementById('mainBadge').classList.remove('opacity-0');
                     document.getElementById('mainDesc').classList.remove('opacity-0');
-                    
-                    // 💡 즉각 첫 급매물 연산 처리 함수 가동하여 목록 노출!
                     fetchDeals();
                 }, 50);
             }, 800);
@@ -400,11 +387,16 @@
         function renderDeals() {
             const container = document.getElementById('resultContainer');
             container.innerHTML = '';
+            
             let filtered = currentFetchedDeals.filter(item => {
                 if (currentActiveTab === 'ALL') return true;
                 return item.rletTpNm === currentActiveTab;
             });
-            if (filtered.length === 0) return;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-500 py-12 text-sm">해당 주거 카테고리에 조건이 만족하는 저평가 자산이 없습니다.</div>`;
+                return;
+            }
 
             const sortCriteria = document.getElementById('sortCriteriaSelect').value;
             if (sortCriteria === 'score_desc') filtered.sort((a, b) => b.totalScore - a.totalScore);
@@ -436,7 +428,7 @@
                             <p class="font-bold border-b border-slate-800 pb-2 mb-2 text-orange-400 flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> 실시간 자산 스캔 결과</p>
                             <ul class="space-y-1.5 text-[11px] text-slate-400">
                                 <li>• 정상적인 시장 균형가 대비 <span class="text-orange-400 font-bold">-${item.discount}%</span> 격차 발생</li>
-                                <li>• 카드를 터치하시면 상세 분석 보고서를 즉시 연동합니다.</li>
+                                <li>• 카드를 터치하시면 상세 분석 보고서를 즉시 로드합니다.</li>
                             </ul>
                         </div>
                     </div>
@@ -456,7 +448,6 @@
             const comp2_name = "더샵 리버그란데"; const comp2_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "31억 원" : formatAssetPrice((marketPrice * 0.98) / 10000);
             const comp3_name = "이편한세상 센트럴"; const comp3_price = item.atclNm.includes('자이 프리시디움') && item.district === '강남구' ? "32억 원" : formatAssetPrice((marketPrice * 1.02) / 10000);
 
-            // 💡 [버그 수정 완료] 하단 부서져 있던 구문 닫는 태그 완벽 교정 완료
             content.innerHTML = `
                 <div class="space-y-5 text-slate-100">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -551,6 +542,7 @@
             `;
             modal.classList.add('modal-active');
         }
+        
         function closeModal(e) { document.getElementById('detailModal').classList.remove('modal-active'); }
     </script>
 </body>
